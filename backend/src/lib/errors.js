@@ -4,6 +4,12 @@ export function bad(pesan, status = 400) {
   return error;
 }
 
+export function gangguan(pesan, status = 503) {
+  const error = bad(pesan, status);
+  error.expose = true;
+  return error;
+}
+
 export function angka(nilai) {
   if (nilai == null) return null;
   return Number(nilai);

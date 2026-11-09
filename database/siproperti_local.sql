@@ -125,6 +125,10 @@ CREATE TABLE perkara (
       'hitung', 'putusan_tidak_tersedia', 'pembanding_tidak_tersedia', 'tidak_mencukupi'
     )),
   sisa_simulasi_gagal_simpan smallint NOT NULL DEFAULT 0,
+  kondisi_analisis varchar(30) NOT NULL DEFAULT 'lengkap'
+    CHECK (kondisi_analisis IN (
+      'lengkap', 'tanpa_informasi', 'tanpa_argumen', 'tanpa_dasar_hukum', 'gagal_sekali'
+    )),
   fakta text,
   dalil text,
   bukti_kunci text
@@ -159,7 +163,9 @@ CREATE TABLE putusan (
   bukti_kunci text NOT NULL,
   duduk_perkara text NOT NULL,
   pertimbangan text NOT NULL,
-  amar_teks text NOT NULL
+  amar_teks text NOT NULL,
+  dokumen_tersedia boolean NOT NULL DEFAULT true,
+  ocr_berhasil boolean NOT NULL DEFAULT true
 );
 
 -- -----------------------------------------------------------------------------
@@ -274,6 +280,7 @@ CREATE TABLE analisis_perkara (
   ringkasan text NOT NULL,
   status varchar(20) NOT NULL DEFAULT 'Tersedia'
     CHECK (status IN ('Tersedia', 'Sebagian', 'Gagal')),
+  informasi_tersedia boolean NOT NULL DEFAULT true,
   dibuat_pada timestamptz NOT NULL DEFAULT now()
 );
 
@@ -602,6 +609,11 @@ UPDATE perkara SET
   bukti_kunci = 'Tiket layanan internal penggugat'
 WHERE nomor_sengketa = '000437162025';
 
+UPDATE perkara SET kondisi_analisis = 'gagal_sekali' WHERE nomor_sengketa = '000412162025';
+UPDATE perkara SET kondisi_analisis = 'tanpa_argumen' WHERE nomor_sengketa = '000533162025';
+UPDATE perkara SET kondisi_analisis = 'tanpa_dasar_hukum' WHERE nomor_sengketa = '000548162025';
+UPDATE perkara SET kondisi_analisis = 'tanpa_informasi' WHERE nomor_sengketa = '000561162025';
+
 INSERT INTO pihak (perkara_id, peran_pihak, nama, nama_anonim)
 SELECT id, 'Penggugat', nama_pemohon, 'PIHAK-01' FROM perkara
 UNION ALL
@@ -678,6 +690,9 @@ INSERT INTO putusan (
     'Gugatan melewati tenggang waktu sebagaimana Pasal 40 UU Pengadilan Pajak.',
     'Menyatakan gugatan tidak dapat diterima.'
   );
+
+UPDATE putusan SET ocr_berhasil = false WHERE urutan = 4;
+UPDATE putusan SET dokumen_tersedia = false WHERE urutan = 5;
 
 INSERT INTO templat_argumen (pihak, isi, urutan) VALUES
   ('Penggugat', 'Keterlambatan penyetoran PPN masa Desember 2021 terjadi karena gangguan sistem e-Billing (bukti: tiket layanan).', 1),

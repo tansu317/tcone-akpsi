@@ -33,10 +33,10 @@ app.use((_req, res) => {
 });
 
 app.use((err, _req, res, _next) => {
-  if (!err.status || err.status >= 500) console.error(err);
+  if (!err.expose && (!err.status || err.status >= 500)) console.error(err);
   const status = err.status || 500;
   res.status(status).json({
-    pesan: status >= 500 ? 'Terjadi kesalahan pada server.' : err.message,
+    pesan: status >= 500 && !err.expose ? 'Terjadi kesalahan pada server.' : err.message,
   });
 });
 

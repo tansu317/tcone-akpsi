@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api, unduhTeks } from '../api.js';
 import { koma, persen, rupiah, waktu } from '../format.js';
 import { useAuth } from '../auth.jsx';
-import { Alert, Disc, Donut, Icon, Shell, WARNA_AMAR } from '../ui.jsx';
+import { useToast, Alert, Disc, Donut, Icon, Shell, WARNA_AMAR } from '../ui.jsx';
 
 export default function Hasil() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
   const [data, setData] = useState(null);
   const [galat, setGalat] = useState('');
   const hakim = user.peran === 'Hakim';
@@ -81,7 +82,7 @@ export default function Hasil() {
             <tbody>
               {data.putusanSejenis.map((item) => (
                 <tr key={item.id}><td>{item.nomor}</td><td>{item.amar}</td><td>{koma(item.kemiripan)}%</td>
-                  <td><button className="btn bp" onClick={() => unduhTeks(`/prediksi/putusan/${item.id}/unduh`, `${item.nomor.split(' ')[0]}.txt`)}><Icon name="dl" /></button></td></tr>
+                  <td><button className="btn bp" onClick={() => unduhTeks(`/prediksi/putusan/${item.id}/unduh`, `${item.nomor.split(' ')[0]}.txt`).catch((e) => toast(e.message))}><Icon name="dl" /></button></td></tr>
               ))}
               {!data.putusanSejenis.length ? <tr><td colSpan="4" className="small">Tidak ada putusan sejenis yang sesuai</td></tr> : null}
             </tbody>

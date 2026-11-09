@@ -34,9 +34,14 @@ export default function Chat() {
 
   async function kirim(event) {
     event.preventDefault();
-    const data = await api(`/chat/sesi/${sesi.id}/pesan`, { method: 'POST', body: { jenis, isi } });
-    setSesi(data);
-    setIsi('');
+    setGalat('');
+    try {
+      const data = await api(`/chat/sesi/${sesi.id}/pesan`, { method: 'POST', body: { jenis, isi } });
+      setSesi(data);
+      setIsi('');
+    } catch (error) {
+      setGalat(error.message);
+    }
   }
 
   async function akhiri() {

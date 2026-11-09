@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { koma } from '../format.js';
 import { Alert, Disc, Icon, Shell } from '../ui.jsx';
@@ -7,6 +7,7 @@ import { Alert, Disc, Icon, Shell } from '../ui.jsx';
 export default function Banding() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [data, setData] = useState(null);
   useEffect(() => { api(`/prediksi/${id}`).then(setData); }, [id]);
   const daftar = data?.putusanSejenis || [];
@@ -30,6 +31,7 @@ export default function Banding() {
               {data && !daftar.length ? <tr><td colSpan="5" className="small">Tidak ada data</td></tr> : null}
             </tbody>
           </table>
+          {state?.galat ? <div style={{ marginTop: 10 }}><Alert jenis="d"><b>{state.galat}</b></Alert></div> : null}
         </div>
       </div>
       <button className="btn" onClick={() => navigate(`/prediksi/${id}`)}>Kembali ke Hasil Prediksi</button>

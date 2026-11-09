@@ -97,20 +97,38 @@ export const spesifikasi = {
       }),
     },
     '/api/prediksi/{id}/analisis': {
-      get: path('Analisis hasil prediksi', 'Prediksi', { parameters: [{ name: 'id', in: 'path', required: true, schema: uuid }] }),
+      get: path('Analisis hasil prediksi', 'Prediksi', {
+        description: 'Komponen yang tidak ditemukan dikembalikan kosong: perkara bernilai null, argumen, dasarHukum, atau putusanPembanding berupa array kosong.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: uuid }],
+        responses: {
+          200: { description: 'Berhasil' },
+          ...galat,
+          503: { description: 'Hasil analisis tidak dapat ditampilkan; Hakim dapat mencoba lagi', content: { 'application/json': { schema: pesan } } },
+        },
+      }),
     },
     '/api/prediksi/{id}/pembanding/{putusanId}': {
       get: path('Bandingkan perkara dengan satu putusan sejenis', 'Prediksi', {
+        description: 'Field sorotan bernilai false bila OCR gagal; dokumen tetap ditampilkan tanpa sorotan.',
         parameters: [
           { name: 'id', in: 'path', required: true, schema: uuid },
           { name: 'putusanId', in: 'path', required: true, schema: uuid },
         ],
+        responses: {
+          200: { description: 'Berhasil' },
+          ...galat,
+          502: { description: 'Dokumen putusan gagal diunduh dari server', content: { 'application/json': { schema: pesan } } },
+        },
       }),
     },
     '/api/prediksi/putusan/{id}/unduh': {
       get: path('Unduh teks putusan sejenis', 'Prediksi', {
         parameters: [{ name: 'id', in: 'path', required: true, schema: uuid }],
-        responses: { 200: { description: 'Berkas teks' }, ...galat },
+        responses: {
+          200: { description: 'Berkas teks' },
+          ...galat,
+          502: { description: 'Dokumen putusan gagal diunduh dari server', content: { 'application/json': { schema: pesan } } },
+        },
       }),
     },
     '/api/meta': { get: path('Daftar amar, langkah prediksi, dan jenis pertanyaan ChatAI', 'Prediksi') },

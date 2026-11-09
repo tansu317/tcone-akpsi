@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
-import { Icon, Pager, Shell } from '../ui.jsx';
+import { Alert, Icon, Pager, Shell } from '../ui.jsx';
 
 export default function Disparitas() {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ export default function Disparitas() {
   const [rows, setRows] = useState([]);
   const [sel, setSel] = useState('');
   const [q, setQ] = useState('');
+  const [galat, setGalat] = useState('');
 
   useEffect(() => {
     api('/disparitas/parameter').then(setParam);
@@ -21,6 +22,7 @@ export default function Disparitas() {
   const tampil = rows.filter((r) => `${r.nomorSengketa} ${r.namaPemohon}`.toLowerCase().includes(q.toLowerCase()));
 
   async function jalankan() {
+    setGalat('');
     const hasil = await api('/disparitas/deteksi', {
       method: 'POST',
       body: {
@@ -33,12 +35,13 @@ export default function Disparitas() {
           minimum: Number(param.minimum),
         },
       },
-    });
-    navigate('/disparitas/hasil', { state: { hasil } });
+    }).catch((e) => setGalat(e.message));
+    if (hasil) navigate('/disparitas/hasil', { state: { hasil } });
   }
 
   return (
     <Shell crumb={<b>Deteksi Disparitas Putusan</b>}>
+      {galat ? <Alert jenis="d">{galat}</Alert> : null}
       <div className="box"><div className="bh">Parameter Deteksi</div>
         <div className="bb" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <label className="f">Periode putusan sejenis dari<input type="month" value={String(param?.periodeDari || '').slice(0, 7)} onChange={(e) => setParam({ ...param, periodeDari: `${e.target.value}-01` })} /></label>

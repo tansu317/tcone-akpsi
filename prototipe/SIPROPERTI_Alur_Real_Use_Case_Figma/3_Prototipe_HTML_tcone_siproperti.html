@@ -1,0 +1,446 @@
+<title>TC One – Prediksi Putusan (Prototipe SIPROPERTI)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{
+  --side:#222d32; --side2:#1a2226; --side-fg:#b8c7ce; --blue:#3c8dbc; --blue-d:#2c6e98; --blue-bar:#1f78c1; --bg:#ecf0f5; --card:#fff; --line:#e3e7ec; --fg:#333; --muted:#777;
+  --green:#00a65a; --orange:#f39c12; --red:#dd4b39; --teal:#00c0ef; --hl:#fff3a6; --hl2:#d6ecff;
+  --f:"Source Sans 3","Segoe UI",Roboto,Helvetica,Arial,sans-serif; --fh:"Poppins","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f);font-size:14px}
+a{color:var(--blue);text-decoration:none;cursor:pointer}
+.wrap{display:grid;grid-template-columns:230px 1fr;min-height:100%}
+.side{background:var(--side);color:var(--side-fg)}
+.brand{height:50px;background:var(--side2);display:flex;align-items:center;gap:10px;padding:0 16px;color:#fff;font-family:var(--fh);font-weight:600;font-size:17px}
+.brand .lg{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#f3c623,#e09b13);color:#1a2226;display:grid;place-items:center;font-size:11px;font-weight:700}
+.userp{display:flex;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid #2c3b41}
+.av{width:36px;height:36px;border-radius:50%;background:#4b646f;color:#fff;display:grid;place-items:center;font-weight:600;font-size:13px}
+.userp b{color:#fff;font-size:13px;display:block}.userp span{font-size:11px;color:#8aa4af}
+.mh{font-size:11px;color:#4b646f;background:var(--side2);padding:8px 16px;letter-spacing:.04em}
+.menu a{display:flex;gap:10px;align-items:center;color:var(--side-fg);padding:10px 16px;font-size:13.5px;border-left:3px solid transparent}
+.menu a:hover{background:var(--side2);color:#fff}
+.menu a.on{background:var(--blue);color:#fff;border-left-color:#fff}
+.menu a .nw{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;padding:1px 6px;border-radius:8px}
+.menu svg{width:14px;height:14px;flex:none}
+.main{display:flex;flex-direction:column;min-width:0}
+.nav{height:50px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.nav .ham{font-size:20px;color:#555}
+.nav .rt{display:flex;align-items:center;gap:16px;color:#555;font-size:13px}
+.bell{position:relative}.bell i{position:absolute;top:-6px;right:-8px;background:var(--red);color:#fff;font-style:normal;font-size:10px;border-radius:8px;padding:0 5px}
+.crumb{background:var(--blue-bar);color:#fff;padding:9px 18px;font-size:13px;display:flex;gap:6px;align-items:center}
+.crumb b{font-weight:600}
+.content{padding:16px 18px 30px;display:flex;flex-direction:column;gap:16px}
+.box{background:var(--card);border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.12);overflow:hidden}
+.bh{background:linear-gradient(90deg,#2b74b5,#4c9be0 60%,#6fb3ea);color:#fff;padding:9px 14px;font-family:var(--fh);font-size:14px;display:flex;justify-content:space-between;align-items:center;position:relative}
+.bh:after{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 80% 50%,rgba(255,255,255,.07) 0 6px,transparent 6px 14px);pointer-events:none}
+.bb{padding:14px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ib{width:34px;height:34px;border-radius:50%;background:#2d2d2d;color:#fff;display:inline-grid;place-items:center;border:0;cursor:pointer;margin-right:4px;position:relative}
+.ib svg{width:16px;height:16px}
+.ib.new{background:var(--blue)}
+.ib[disabled]{opacity:.35;cursor:not-allowed}
+.tip{position:absolute;top:38px;left:50%;transform:translateX(-50%);background:#555;color:#fff;font-size:10px;padding:2px 6px;border-radius:3px;white-space:nowrap}
+.dtc{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;gap:10px;flex-wrap:wrap}
+.dtc select,.dtc input{border:1px solid #ccc;border-radius:3px;padding:3px 6px;font:inherit}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:8px;border-bottom:2px solid #ddd;color:#444;font-weight:600;white-space:nowrap}
+th .s{color:#bbb;font-size:10px;margin-left:4px}
+td{padding:8px;border-top:1px solid #eee;vertical-align:middle}
+tbody tr:nth-child(odd){background:#f9f9f9}
+tr.sel td{background:#3c8dbc!important;color:#fff}
+tr.clk{cursor:pointer} tr.clk:hover td{background:#eef5fb}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%}
+.pg{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#666;margin-top:10px}
+.pg .b{display:flex}.pg .b span{border:1px solid #ddd;padding:4px 9px;margin-left:-1px;color:#3c8dbc}.pg .b span.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;border-radius:3px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;background:#f4f4f4;border-color:#ddd;color:#444}
+.btn svg{width:14px;height:14px}
+.bp{background:var(--blue);border-color:#367fa9;color:#fff}.bs{background:var(--green);border-color:#008d4c;color:#fff}.bw{background:var(--orange);border-color:#e08e0b;color:#fff}.bd{background:var(--red);border-color:#d73925;color:#fff}.bi{background:var(--teal);border-color:#00acd6;color:#fff}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.al{border-radius:3px;padding:10px 14px;font-size:13px;border-left:4px solid;display:flex;gap:10px;align-items:flex-start}
+.al svg{width:18px;height:18px;flex:none;margin-top:1px}
+.al-i{background:#e7f3fb;border-color:#3c8dbc;color:#205d83}.al-w{background:#fff6e5;border-color:var(--orange);color:#8a5a00}.al-d{background:#fdecea;border-color:var(--red);color:#9c2b1e}.al-s{background:#e6f6ee;border-color:var(--green);color:#0b6b3c}
+.disc{background:#fff6e5;border:1px solid #f5d9a3;color:#8a5a00;border-radius:3px;padding:7px 12px;font-size:12px;display:flex;gap:8px;align-items:center}
+.disc svg{width:15px;height:15px;flex:none}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g12{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}.g21{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:5px 10px;font-size:13px}.kv dt{color:#777}.kv dd{margin:0;font-weight:600;color:#333}
+.sb{display:flex;align-items:center;gap:12px;padding:14px;color:#fff;border-radius:3px}
+.sb .n{font-size:26px;font-family:var(--fh);font-weight:600}.sb .t{font-size:12px;opacity:.9}
+.sb svg{width:38px;height:38px;opacity:.35;margin-left:auto}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:#fff}
+.p-g{background:var(--green)}.p-o{background:var(--orange)}.p-r{background:var(--red)}.p-b{background:var(--blue)}.p-x{background:#999}.p-t{background:var(--teal)}
+.lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.big{font-family:var(--fh);font-size:20px;font-weight:600;color:#2b74b5}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.legend span{display:flex;align-items:center;gap:8px}.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.bar{height:9px;background:#eee;border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue)}
+.chk{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.chk li{display:flex;gap:8px;align-items:center}
+.ok{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:50;padding:16px}
+.mb{background:#fff;border-radius:4px;width:min(780px,100%);max-height:92vh;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.mh2{padding:12px 16px;border-bottom:1px solid #eee;font-family:var(--fh);font-size:15px;display:flex;justify-content:space-between}
+.mc{padding:16px;display:flex;flex-direction:column;gap:12px}.mf{padding:12px 16px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:8px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.steps li{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:3px;background:#f4f6f8;font-size:13px}
+.steps li .c{width:22px;height:22px;border-radius:50%;background:#ccd3da;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.steps li.d{background:#e6f6ee}.steps li.d .c{background:var(--green)}
+.steps li.r{background:#e7f3fb}.steps li.r .c{background:var(--blue)}
+.steps li.f{background:#fdecea}.steps li.f .c{background:var(--red)}
+.steps li.sk{opacity:.5}
+.prog{height:16px;background:#eee;border-radius:3px;overflow:hidden}.prog i{display:block;height:100%;background:repeating-linear-gradient(45deg,#3c8dbc 0 10px,#4c9be0 10px 20px)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:#555;font-weight:600}
+input[type=text],input[type=number],input[type=month],select,textarea{font:inherit;font-weight:400;border:1px solid #ccc;border-radius:3px;padding:6px 8px;color:#333;background:#fff}
+textarea{min-height:70px;resize:vertical;width:100%}
+.req{color:var(--red)}
+.opt{display:flex;flex-direction:column;gap:8px}
+.opt label{display:flex;gap:10px;align-items:flex-start;border:1px solid #ddd;border-radius:3px;padding:10px 12px;cursor:pointer;font-size:13px}
+.opt label.on{border-color:var(--blue);background:#eef6fc}
+.opt small{display:block;color:#777}
+.st{display:inline-flex;gap:4px}
+.st button{width:30px;height:30px;border:1px solid #ccc;background:#fff;border-radius:3px;cursor:pointer;font-weight:600}
+.st button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.err{color:var(--red);font-size:12px}
+.chat{display:flex;flex-direction:column;gap:10px;height:360px;overflow:auto;padding:4px}
+.m{max-width:85%;padding:9px 12px;border-radius:6px;font-size:13px;line-height:1.45}
+.m.ty{font-style:italic;color:#777;background:#fafafa;border-style:dashed}
+.m.u{align-self:flex-end;background:var(--blue);color:#fff}.m.a{align-self:flex-start;background:#f1f3f5;border:1px solid #e3e7ec}
+.m .who{font-size:10.5px;opacity:.75;margin-bottom:3px;font-weight:600}
+.ref{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 7px;border-radius:10px;margin:5px 4px 0 0}
+.ref.v{background:#e6f6ee;color:#0b6b3c}.ref.x{background:#fdecea;color:#9c2b1e}
+.qt{display:flex;gap:6px;flex-wrap:wrap}
+.qt button{border:1px solid #cfd8e0;background:#fff;border-radius:16px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.qt button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.doc{font-family:Georgia,"Times New Roman",serif;font-size:13px;line-height:1.65;max-height:470px;overflow:auto;padding:14px 18px;background:#fffef9;border:1px solid #eee}
+.doc h4{text-align:center;margin:0 0 8px;font-size:14px}
+mark.a{background:var(--hl)} mark.p{background:var(--hl2)}
+.tl{display:flex;align-items:center;gap:0;font-size:12px;flex-wrap:wrap}
+.tl span{padding:6px 12px;background:#e9edf1;color:#777;position:relative;margin-right:10px;border-radius:3px}
+.tl span.on{background:var(--blue);color:#fff}.tl span.pa{background:#cfe3f3;color:#205d83}.tl span.x{background:var(--red);color:#fff}
+.gauge{position:relative;height:18px;background:linear-gradient(90deg,#d6f0e1 0 60%,#fde0db 60%);border-radius:3px}
+.gauge i{position:absolute;top:-4px;bottom:-4px;width:3px;background:#333}
+.gauge b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--red)}
+.small{font-size:12px;color:#777}
+.callout{position:absolute;border:2.5px solid #e53935;border-radius:8px;pointer-events:none;z-index:200}
+.callout span{position:absolute;top:-13px;left:-13px;width:24px;height:24px;border-radius:50%;background:#e53935;color:#fff;font:700 12px/24px Arial;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.toast{position:fixed;right:20px;top:62px;background:var(--green);color:#fff;padding:10px 16px;border-radius:3px;font-size:13px;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.login{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#1f3b57,#2b74b5)}
+.lc{background:#fff;width:380px;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden}
+.lc .hd{background:var(--side2);color:#fff;padding:18px 22px;font-family:var(--fh)}
+.lc .lbd{padding:20px 22px;display:flex;flex-direction:column;gap:12px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.side{display:none}.g2,.g3,.g12,.g21{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+</style>
+<div id="root"></div>
+<script>
+/* ---------- ICONS ---------- */
+const I={
+ home:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>',
+ pen:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.3V21h3.7L17.8 9.9l-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>',
+ eye:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>',
+ pred:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v10H1A10 10 0 0 0 11 22a10 10 0 0 0 0-20zm2 0v9h9a10 10 0 0 0-9-9z"/></svg>',
+ up:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 10A7.5 7.5 0 0 0 5.4 8 6 6 0 0 0 6 20h13a5 5 0 0 0 .4-10zM14 13v4h-4v-4H7l5-5 5 5z"/></svg>',
+ dl:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5zm7-3 6-6h-4V3h-4v8H6z"/></svg>',
+ gear:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 0 0-1.7-1L15 3h-4l-.4 2.7a7.3 7.3 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.8 7.8 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1c.5.4 1.1.7 1.7 1L11 21h4l.4-2.7c.6-.3 1.2-.6 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>',
+ info:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>',
+ warn:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg>',
+ x:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm5 13.6L15.6 17 12 13.4 8.4 17 7 15.6 10.6 12 7 8.4 8.4 7 12 10.6 15.6 7 17 8.4 13.4 12z"/></svg>',
+ ok:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 15-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8z"/></svg>',
+ chat:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM7 9h10v2H7zm6 5H7v-2h6zm4-6H7V6h10z"/></svg>',
+ scale:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a2 2 0 0 0-1 3.7V8H5l-3 7a4 4 0 0 0 8 0L7.2 10H11v9H7v2h10v-2h-4v-9h3.8L14 15a4 4 0 0 0 8 0l-3-7h-6V6.7A2 2 0 0 0 12 3zM6 11.6 7.7 15H4.3zm12 0 1.7 3.4h-3.4z"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h2v2H3zm4 0h14v2H7zM3 11h2v2H3zm4 0h14v2H7zm-4 6h2v2H3zm4 0h14v2H7z"/></svg>',
+ flag:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6 14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 17.3 6.2 3.7-1.6-7L22 9.2l-7.2-.6L12 2 9.2 8.6 2 9.2 7.4 14l-1.6 7z"/></svg>',
+ bell:'<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 0 0-5-5.9V4a1 1 0 0 0-2 0v1.1A6 6 0 0 0 6 11v5l-2 2v1h16v-1z"/></svg>',
+ audit:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H6a7 7 0 1 1 2.1 5L6.7 18.4A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-3.5-2.1V8z"/></svg>',
+ search:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>'
+};
+/* ---------- DATA (fiktif) ---------- */
+const AMAR=["Mengabulkan Seluruhnya","Mengabulkan Sebagian","Menolak","Tidak Dapat Diterima","Membatalkan","Mencabut","Menambah Pajak Yang Harus Dibayar"];
+const COL=["#fcd581","#f6a5b5","#7cc0f2","#c9d3df","#7fd3d0","#b9a7e6","#ffcf9e"];
+const HAKIM=["Dr. Andi Wibisono, S.H., M.H.","Ratna Kusumawati, S.E., Ak., M.Ak.","Hendra Saputra, S.H., LL.M."];
+const SG=[
+ {id:"S01",no:"000412162025",pem:"PT Sinar Kencana Logistik",pajak:"PPN",objek:"Gugatan atas pelaksanaan Surat Paksa",nilai:"Rp1.284.500.000",tgl:"11-03-2025",selesai:"14-08-2025",mj:"M IVB",docs:1,sim:"full"},
+ {id:"S02",no:"000437162025",pem:"CV Mitra Agro Lestari",pajak:"PPN",objek:"Gugatan atas penolakan pengurangan sanksi administrasi (Pasal 36 KUP)",nilai:"Rp642.180.000",tgl:"19-03-2025",selesai:"21-08-2025",mj:"M IVB",docs:1,sim:"full"},
+ {id:"S03",no:"000451162025",pem:"PT Arunika Tekstil",pajak:"Pabean",objek:"Gugatan atas Surat Penetapan Tarif dan/atau Nilai Pabean",nilai:"Rp318.900.000",tgl:"02-04-2025",selesai:"28-08-2025",mj:"M IVB",docs:0,sim:"full"},
+ {id:"S04",no:"000468162025",pem:"PT Bahari Sentosa Marine",pajak:"PPh Pasal 23",objek:"Gugatan atas pelaksanaan penyitaan",nilai:"Rp915.000.000",tgl:"15-04-2025",selesai:"02-09-2025",mj:"M IVB",docs:1,sim:"few"},
+ {id:"S05",no:"000489162025",pem:"PT Kalimaya Perkebunan",pajak:"PPh Badan",objek:"Gugatan atas pengumuman lelang barang sitaan",nilai:"Rp205.740.000",tgl:"06-05-2025",selesai:"04-09-2025",mj:"M IVB",docs:1,sim:"none"},
+ {id:"S06",no:"000502162025",pem:"PT Nusantara Digital Niaga",pajak:"PPN",objek:"Gugatan atas Surat Teguran",nilai:"Rp477.300.000",tgl:"14-05-2025",selesai:"09-09-2025",mj:"M IVB",docs:1,sim:"full",tcoMissing:1},
+ {id:"S07",no:"000517162025",pem:"PT Lintas Samudra Cargo",pajak:"Pabean",objek:"Gugatan atas Keputusan pembetulan",nilai:"Rp733.120.000",tgl:"20-05-2025",selesai:"11-09-2025",mj:"M IVB",docs:1,sim:"full",gone:1},
+ {id:"S08",no:"000533162025",pem:"PT Graha Mandiri Konstruksi",pajak:"PPh Pasal 23",objek:"Gugatan atas pelaksanaan Surat Paksa",nilai:"Rp1.022.640.000",tgl:"27-05-2025",selesai:"16-09-2025",mj:"M IVB",docs:1,sim:"full"},
+ {id:"S09",no:"000548162025",pem:"CV Surya Pratama Elektrik",pajak:"PPN",objek:"Gugatan atas penolakan penghapusan sanksi",nilai:"Rp158.900.000",tgl:"03-06-2025",selesai:"18-09-2025",mj:"M IVB",docs:1,sim:"full"},
+ {id:"S10",no:"000561162025",pem:"PT Andalas Prima Sawit",pajak:"Pabean",objek:"Gugatan atas penetapan kembali tarif",nilai:"Rp690.450.000",tgl:"10-06-2025",selesai:"23-09-2025",mj:"M IVB",docs:1,sim:"full"}
+];
+const DOCS=["Surat Gugatan","Surat Tanggapan Tergugat","Surat Bantahan Penggugat","Objek Gugatan (salinan keputusan/Surat Paksa)","Berita Acara Sidang","Daftar Alat Bukti"];
+const SIM=[
+ {no:"PUT-012345.16/2023/PP/M.IVB Tahun 2023",amar:"Mengabulkan Sebagian",k:91.37,al:"Pokok sengketa sama (pengurangan sanksi Pasal 36 ayat 1 huruf a KUP); dasar hukum identik"},
+ {no:"PUT-009871.16/2022/PP/M.IIA Tahun 2022",amar:"Mengabulkan Sebagian",k:87.12,al:"Penolakan pengurangan sanksi; nilai sanksi sebanding"},
+ {no:"PUT-014420.16/2023/PP/M.XIA Tahun 2023",amar:"Menolak",k:82.48,al:"Isu sama; permohonan diajukan melewati jangka waktu"},
+ {no:"PUT-007712.16/2021/PP/M.VB Tahun 2021",amar:"Mengabulkan Seluruhnya",k:79.06,al:"Isu sama; terdapat bukti kekhilafan administrasi fiskus"},
+ {no:"PUT-016003.16/2024/PP/M.IVA Tahun 2024",amar:"Tidak Dapat Diterima",k:74.55,al:"Gugatan melewati tenggang waktu 30 hari"}
+];
+const DB={pred:{},evalP:[],evalA:[],fb:[],chat:{},lap:[],audit:[],notif:0};
+function addPred(sid,dist,who,when,st){const l=DB.pred[sid]=DB.pred[sid]||[];l.forEach(p=>{if(p.status==="Aktif")p.status="Digantikan"});const top=dist.indexOf(Math.max(...dist));const p={id:"PRD-"+SG.find(s=>s.id===sid).no.slice(3,6)+"-v"+(l.length+1),sid,ver:l.length+1,dist,amar:AMAR[top],conf:dist[top],who,when,status:st||"Aktif",model:"AmarClassifier v2.3"};l.push(p);return p}
+addPred("S02",[0.12,0.58,0.18,0.06,0.03,0.02,0.01],"Rina Siregar, S.H. (Panitera Pengganti)","12-09-2025 09:42");
+DB.audit.push({w:"12-09-2025 09:42",u:"Rina Siregar, S.H.",a:"Generate prediksi putusan",o:"000437162025 / PRD-437-v1"});
+const DISTS={S01:[0.44,0.31,0.15,0.05,0.03,0.01,0.01],S04:[0.11,0.26,0.47,0.09,0.04,0.02,0.01],S05:[0.36,0.27,0.21,0.08,0.05,0.02,0.01],S08:[0.21,0.39,0.27,0.07,0.03,0.02,0.01],S09:[0.16,0.52,0.20,0.07,0.03,0.01,0.01],S10:[0.09,0.22,0.55,0.08,0.03,0.02,0.01]};
+/* Disparitas: putusan yang sedang ditangani */
+const DP=[
+ {id:"D1",no:"000437162025",pem:"CV Mitra Agro Lestari",pajak:"PPN",mj:"M IVB",draf:"Menolak",nsim:42,flag:"disp",dist:[5,26,7,3,1,0,0]},
+ {id:"D2",no:"000412162025",pem:"PT Sinar Kencana Logistik",pajak:"PPN",mj:"M IVB",draf:"Mengabulkan Seluruhnya",nsim:37,flag:"ok",dist:[25,7,3,2,0,0,0]},
+ {id:"D3",no:"000389152025",pem:"PT Cakra Buana Energi",pajak:"Pabean",mj:"M XIIA",draf:"—",nsim:0,flag:"noput"},
+ {id:"D4",no:"000377152025",pem:"PT Delta Mas Retailindo",pajak:"PPh Pasal 23",mj:"M VIIIB",draf:"Mengabulkan Sebagian",nsim:0,flag:"nocmp"},
+ {id:"D5",no:"000365152025",pem:"CV Tirta Kencana",pajak:"PPN",mj:"M IIA",draf:"Menolak",nsim:3,flag:"insuf"},
+ {id:"D6",no:"000351152025",pem:"PT Mega Samudera Lines",pajak:"Pabean",mj:"M VB",draf:"Menolak",nsim:29,flag:"disp",dist:[3,18,5,2,1,0,0],saveFail:1}
+];
+/* ---------- STATE ---------- */
+const S={role:null,scr:"login",p:{},modal:null,toast:null,sel:null};
+const USERS={Panitera:{n:"Rina Siregar, S.H.",t:"Panitera Pengganti",app:"Persidangan",ini:"RS"},Hakim:{n:"Dr. Andi Wibisono, S.H., M.H.",t:"Hakim – Majelis IVB",app:"Hakim",ini:"AW"},Pimpinan:{n:"Pimpinan Pengadilan Pajak",t:"Ketua",app:"Hakim",ini:"PP"}};
+const $=q=>document.querySelector(q);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pc=(x,d=2)=>(x*100).toFixed(d).replace(".",",")+"%";
+const now=()=>{const d=new Date();const z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}-${z(d.getMonth()+1)}-${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
+const sg=id=>SG.find(s=>s.id===id);
+const act=sid=>(DB.pred[sid]||[]).filter(p=>p.status!=="Digantikan").slice(-1)[0];
+function audit(a,o){DB.audit.unshift({w:now(),u:USERS[S.role].n,a,o})}
+function go(scr,p){S.scr=scr;S.p=p||{};S.modal=null;S.toast=null;render();window.scrollTo(0,0)}
+function toast(t){S.toast=t;render();clearTimeout(window._t);window._t=setTimeout(()=>{S.toast=null;render()},2800)}
+/* ---------- SHELL ---------- */
+function shell(crumb,body){
+ const r=S.role,u=USERS[r];let m=[];
+ if(r==="Panitera") m=[["home","Home",I.home],["#","Monitoring",I.list],["#","Penetapan",I.flag],["#","Sengketa",I.list],["#","Panggilan Sidang",I.bell],["#","Sidang Hari Ini",I.audit],["#","Dokumen Pendukung",I.list],["#","BAS",I.list],["pen","Penyelesaian",I.pred,1],["riwayat","Riwayat Prediksi",I.list,1],["#","Putusan",I.scale],["audit","Jejak Audit",I.audit]];
+ if(r==="Hakim") m=[["home","Home",I.home],["pen","Penyelesaian Putusan",I.pred],["riwayat","Riwayat Prediksi",I.list,1],["evalku","Evaluasi & Feedback",I.star,1],["chatku","Sesi ChatAI",I.chat,1],["audit","Jejak Audit",I.audit]];
+ if(r==="Pimpinan") m=[["home","Home",I.home],["#","Monitoring Penyelesaian",I.list],["disp","Deteksi Disparitas",I.scale,1],["laplist","Laporan Disparitas",I.flag,1],["audit","Jejak Audit",I.audit]];
+ const act0={pen:["pen","konfirm","proses","hasil","analisis","banding","dok","eval","evala","chat"],disp:["disp","disphasil"],laplist:["laplist","lap"]};
+ const isOn=k=>k===S.scr||(act0[k]||[]).includes(S.scr);
+ const menu=m.map(([k,l,ic,nw])=>`<a class="${isOn(k)?"on":""}" ${k!=="#"?`onclick="go('${k}')"`:""}>${ic}${l}${nw?'<span class="nw">baru</span>':""}</a>`).join("");
+ const nb=r==="Pimpinan"?DB.lap.filter(l=>l.st==="Menunggu Peninjauan").length:(r==="Hakim"?1:0);
+ return `<div class="wrap"><aside class="side"><div class="brand"><span class="lg">TC</span>${u.app}</div>
+ <div class="userp"><div class="av">${u.ini}</div><div><b>${esc(u.n)}</b><span>${u.t}</span></div></div><div class="mh">MENU UTAMA</div><nav class="menu">${menu}</nav></aside>
+ <div class="main"><div class="nav"><span class="ham">≡</span><div class="rt"><span class="bell" id="bell">${I.bell}${nb?`<i>${nb}</i>`:""}</span><span>${esc(u.n)}</span><a onclick="S.role=null;go('login')">Keluar</a></div></div>
+ <div class="crumb">${I.home.replace('<svg','<svg width="14" height="14"')} › ${crumb}</div><div class="content">${body}</div></div></div>
+ ${S.modal?S.modal():""}${S.toast?`<div class="toast">${esc(S.toast)}</div>`:""}`;
+}
+const disc=`<div class="disc" id="disc">${I.warn}Hasil prediksi, analisis, dan reasoning merupakan alat bantu yang tidak mengikat. Keputusan tetap berada pada Majelis Hakim (Pasal 78 UU No. 14 Tahun 2002).</div>`;
+const dtc=(n,ph)=>`<div class="dtc"><span>Show <select><option>10</option><option>25</option></select> entries</span><span>Search: <input type="text" id="srch" placeholder="${ph||""}" value="${esc(S.p.q||"")}" oninput="S.p.q=this.value;render();const e=$('#srch');e.focus();e.setSelectionRange(99,99)"></span></div>`;
+const pg=(n,t)=>`<div class="pg"><span>Showing 1 to ${n} of ${t} entries</span><span class="b"><span>Previous</span><span class="on">1</span><span>2</span><span>3</span><span>Next</span></span></div>`;
+const al=(t,k,ic)=>`<div class="al al-${k}">${I[ic||({i:"info",w:"warn",d:"x",s:"ok"}[k])]}<div>${t}</div></div>`;
+/* ---------- W-00 LOGIN ---------- */
+function vLogin(){return `<div class="login"><form class="lc" onsubmit="event.preventDefault();S.role=$('#rl').value;audit('Login SSO Kemenkeu','-');go('home')"><div class="hd"><div style="font-size:12px;opacity:.7">Pengadilan Pajak</div><div style="font-size:20px">Tax Court One</div></div><div class="lbd">
+<div class="small">Masuk menggunakan akun SSO Kemenkeu.</div><label class="f">Username / NIP<input type="text" id="un" value="198705122010121003"></label><label class="f">Password<input type="text" value="••••••••••"></label>
+<label class="f">Aplikasi / peran (simulasi prototipe)<select id="rl"><option value="Panitera">TC One Persidangan – Panitera</option><option value="Hakim" selected>TC One Hakim – Hakim</option><option value="Pimpinan">TC One Hakim – Pimpinan</option></select></label>
+<button class="btn bp" style="justify-content:center" id="btnLogin">Masuk dengan SSO Kemenkeu</button><div class="small">Prototipe: seluruh data adalah contoh fiktif.</div></div></form></div>`}
+/* ---------- W-01 HOME ---------- */
+function vHome(){const r=S.role;let cards="",body="";
+ if(r==="Panitera"){cards=[["#00c0ef","10","Sengketa gugatan belum diucap"],["#00a65a",Object.keys(DB.pred).length,"Sengketa telah diprediksi"],["#f39c12","1","Berkas belum lengkap"],["#dd4b39","0","Prediksi gagal"]];
+  body=`<div class="box"><div class="bh">Tugas Prediksi Putusan</div><div class="bb">${al("Terdapat sengketa gugatan berstatus <b>Belum Ucap</b> yang siap diprediksi. Buka menu <b>Penyelesaian</b> lalu pilih sengketa dan klik ikon <b>Prediksi Putusan</b>.","i")}<div class="btns" style="margin-top:10px"><button class="btn bp" onclick="go('pen')">${I.pred}Buka Penyelesaian</button></div></div></div>`}
+ if(r==="Hakim"){const p=act("S02");cards=[["#00c0ef","10","Penyelesaian putusan aktif"],["#00a65a","1","Prediksi menunggu telaah"],["#f39c12",DB.evalP.length,"Evaluasi tersimpan"],["#605ca8",Object.keys(DB.chat).length,"Sesi ChatAI"]];
+  body=`<div class="box"><div class="bh">Prediksi Menunggu Telaah Anda</div><div class="bb"><table><thead><tr><th>No. Sengketa</th><th>Nama Pemohon</th><th>Amar Prediksi</th><th>Keyakinan</th><th>Aksi</th></tr></thead><tbody><tr><td>000437162025</td><td>CV Mitra Agro Lestari</td><td>${p.amar}</td><td>${pc(p.conf)}</td><td><button class="btn bp" onclick="go('hasil',{sid:'S02'})">${I.eye}Lihat</button></td></tr></tbody></table></div></div>`}
+ if(r==="Pimpinan"){const w=DB.lap.filter(l=>l.st==="Menunggu Peninjauan").length;cards=[["#00c0ef","6","Putusan sedang ditangani"],["#dd4b39",w,"Menunggu peninjauan"],["#00a65a",DB.lap.filter(l=>l.st==="Ditindaklanjuti").length,"Ditindaklanjuti"],["#777",DB.lap.filter(l=>l.st==="Diabaikan").length,"Diabaikan"]];
+  body=`<div class="box"><div class="bh">Konsistensi Putusan</div><div class="bb">${al("Gunakan menu <b>Deteksi Disparitas</b> untuk memeriksa keselarasan amar putusan yang sedang ditangani dengan putusan-putusan sejenis. Indikator disparitas tidak digunakan untuk menilai kinerja individu hakim.","i")}<div class="btns" style="margin-top:10px"><button class="btn bp" onclick="go('disp')">${I.scale}Deteksi Disparitas</button><button class="btn" onclick="go('laplist')">${I.flag}Laporan Disparitas</button></div></div></div>`}
+ return shell("<b>Home</b>",`<div class="g4">${cards.map(c=>`<div class="sb" style="background:${c[0]}"><div><div class="n">${c[1]}</div><div class="t">${c[2]}</div></div>${I.pred}</div>`).join("")}</div>${body}`);
+}
+/* ---------- W-02 DAFTAR SENGKETA (UC-02) ---------- */
+function rows(){const q=(S.p.q||"").toLowerCase();return SG.filter(s=>!q||(s.no+s.pem+s.pajak).toLowerCase().includes(q))}
+function vPen(){
+ const rs=rows();
+ if(S.role==="Panitera"){
+  return shell("<b>Penyelesaian</b>",`<div class="box"><div class="bh">Sengketa Gugatan – Belum Diucap</div><div class="bb">
+  <div class="toolbar"><div id="tb"><button class="ib" title="Ubah">${I.pen}</button><button class="ib" title="Lihat">${I.eye}</button><button class="ib new" id="btnPred" onclick="pilih()" ${S.sel?"":"disabled"}>${I.pred}<span class="tip">Prediksi Putusan</span></button><button class="ib" title="Unggah">${I.up}</button></div>
+  <span class="small">Pilih satu baris sengketa, lalu klik ikon <b>Prediksi Putusan</b>.</span></div>${dtc()}
+  <div style="overflow:auto"><table id="tbl"><thead><tr><th>Nomor Sengketa<span class="s">⇅</span></th><th>Nama Pemohon<span class="s">⇅</span></th><th>Jenis Pajak</th><th>PP</th><th>Tanggal Selesai Sidang</th><th>Status</th><th>Prediksi</th><th>Indikator</th></tr></thead><tbody>
+  ${rs.map(s=>{const a=act(s.id);return `<tr class="clk ${S.sel===s.id?"sel":""}" id="r_${s.id}" onclick="S.sel='${s.id}';render()"><td>${s.no}</td><td>${s.pem}</td><td>${s.pajak}</td><td>Rina Siregar, S.H.</td><td>${s.selesai}</td><td>Belum Ucap</td><td>${a?`<span class="pill p-g">v${a.ver} Aktif</span>`:'<span class="small">–</span>'}</td><td><span class="dot" style="background:${a?"#00a65a":"#dd4b39"}"></span></td></tr>`}).join("")||`<tr><td colspan="8" class="small" style="text-align:center">Tidak ada data yang sesuai dengan pencarian</td></tr>`}
+  </tbody></table></div>${pg(rs.length,rs.length)}</div></div>`);
+ }
+ return shell("<b>Penyelesaian Putusan</b>",`<div class="box"><div class="bh">Daftar Penyelesaian Putusan</div><div class="bb">${dtc()}
+  <div style="overflow:auto"><table id="tbl"><thead><tr><th>No. Sengketa<span class="s">⇅</span></th><th>Nama Pemohon<span class="s">⇅</span></th><th>Hakim</th><th>Majelis</th><th>Posisi</th><th>Tgl. Selesai</th><th>Jenis Pajak</th><th>Status</th><th>Indikator</th><th>Aksi</th></tr></thead><tbody>
+  ${rs.map((s,i)=>{const a=act(s.id);return `<tr id="r_${s.id}"><td>${s.no}</td><td>${s.pem}</td><td style="white-space:nowrap">Dr. A. Wibisono</td><td style="white-space:nowrap">${s.mj}</td><td style="white-space:nowrap">Hakim P1</td><td style="white-space:nowrap">${s.selesai}</td><td>${s.pajak}</td><td style="white-space:nowrap">Belum Ucap</td><td><span class="dot" style="background:${a?"#00a65a":"#dd4b39"}"></span></td><td style="white-space:nowrap"><a title="Ubah" style="margin-right:8px">${I.pen.replace('<svg','<svg width="16" height="16"')}</a><a title="Prediksi Putusan" id="g_${s.id}" onclick="S.sel='${s.id}';pilih()">${I.gear.replace('<svg','<svg width="17" height="17"')}</a></td></tr>`}).join("")||`<tr><td colspan="10" class="small" style="text-align:center">Tidak ada data yang sesuai dengan pencarian</td></tr>`}
+  </tbody></table></div>${pg(rs.length,rs.length)}</div></div>`);
+}
+/* UC-02 konfirmasi */
+function pilih(){const s=sg(S.sel);if(!s)return;audit("Memilih sengketa",s.no);S.modal=()=>mKonfirmasi(s);render()}
+function mKonfirmasi(s){
+ if(s.gone) return `<div class="modal"><div class="mb" id="mdl"><div class="mh2">Pilih Sengketa yang Akan Diprediksi</div><div class="mc">${al(`<b>Sengketa ${s.no} tidak tersedia.</b> Data sengketa tidak ditemukan pada Tax Court One (kemungkinan telah dicabut, dipindahkan majelisnya, atau sudah diucap). Silakan batalkan proses atau pilih sengketa lain.`,"d")}</div><div class="mf"><button class="btn" id="btnBatal" onclick="S.modal=null;S.sel=null;render();toast('Proses pemilihan sengketa dibatalkan')">Batal</button><button class="btn bp" id="btnLain" onclick="S.modal=null;S.sel=null;render()">Pilih Sengketa Lain</button></div></div></div>`;
+ const a=act(s.id);
+ return `<div class="modal"><div class="mb" id="mdl"><div class="mh2">Konfirmasi Sengketa yang Akan Diprediksi<a onclick="S.modal=null;render()">✕</a></div><div class="mc">
+ ${a?al(`Sengketa ini sudah memiliki prediksi aktif <b>versi ${a.ver}</b> (${a.when}). Anda dapat melihat prediksi tersebut atau membuat versi baru tanpa menimpa versi sebelumnya.`,"i"):""}
+ <div class="g2"><dl class="kv" id="ident"><dt>Nomor Sengketa</dt><dd>${s.no}</dd><dt>Jenis Sengketa</dt><dd>Gugatan</dd><dt>Jenis Pajak</dt><dd>${s.pajak}</dd><dt>Pokok Sengketa</dt><dd>${s.objek}</dd><dt>Nilai Sengketa</dt><dd>${s.nilai}</dd><dt>Penggugat</dt><dd>${s.pem}</dd><dt>Majelis</dt><dd>${s.mj}</dd></dl>
+ <div><div class="lbl" style="margin-bottom:6px">Dokumen perkara di Tax Court One</div><ul class="chk" id="dok">${DOCS.map((d,i)=>{const ok=s.docs||i<4;return `<li><span class="${ok?"ok":"no"}">${ok?"✔":"✘"}</span>${d}</li>`}).join("")}</ul></div></div>
+ </div><div class="mf"><button class="btn" onclick="S.modal=null;render()">Batal</button>${a?`<button class="btn" onclick="go('hasil',{sid:'${s.id}'})">${I.eye}Lihat Prediksi v${a.ver}</button>`:""}<button class="btn bp" id="btnGen" onclick="startPred('${s.id}')">${I.pred}${a?"Generate Prediksi Versi Baru":"Konfirmasi & Generate Prediksi"}</button></div></div></div>`;
+}
+/* ---------- W-04 PROSES (UC-01) ---------- */
+const PS=["Meminta data perkara ke Tax Court One","Menerima data & dokumen perkara dari Tax Court One","Memvalidasi kelengkapan data dan dokumen perkara","Preprocessing dokumen (OCR, normalisasi teks)","Mengekstraksi informasi relevan (pihak, dalil, dasar hukum)","Menjalankan model prediksi putusan","Menghitung relevansi & menyiapkan daftar putusan sejenis","Menghasilkan probabilitas per kategori amar","Menyimpan hasil prediksi putusan"];
+function startPred(sid){audit("Konfirmasi objek prediksi",sg(sid).no);S.modal=null;go("proses",{sid,step:0});tick()}
+function tick(){if(S.scr!=="proses")return;const p=S.p,s=sg(p.sid);
+ if(s.tcoMissing&&p.step===1){p.fail="tco";audit("Prediksi dihentikan: data perkara tidak ditemukan",s.no);render();return}
+ if(!s.docs&&p.step===3){p.fail="docs";audit("Prediksi dihentikan: data/dokumen tidak lengkap",s.no);render();return}
+ if(p.step<PS.length){p.step++;render();setTimeout(tick,330)}else{const pr=addPred(p.sid,DISTS[p.sid]||[0.2,0.4,0.25,0.08,0.04,0.02,0.01],USERS[S.role].n,now());audit("Generate prediksi putusan",s.no+" / "+pr.id);setTimeout(()=>go("hasil",{sid:p.sid,fresh:1}),400)}}
+function vProses(){const p=S.p,s=sg(p.sid);let msg="";
+ if(p.fail==="tco") msg=al(`<b>Data tidak ditemukan.</b> Tax Court One tidak menemukan data perkara untuk sengketa ${s.no}. Proses prediksi tidak dapat dilanjutkan.`,"d");
+ if(p.fail==="docs") msg=al(`<b>Data atau dokumen perkara yang akan dilakukan analisis tidak lengkap.</b> Proses prediksi dihentikan. Dokumen yang belum tersedia: <b>${DOCS.slice(4).join(", ")}</b>. Lengkapi dokumen pada Tax Court One lalu ulangi prediksi.`,"d");
+ const fi=p.fail==="tco"?1:p.fail==="docs"?2:-1;
+ return shell(`Penyelesaian › <b>Prediksi Putusan</b>`,`<div class="box"><div class="bh">Proses Prediksi Putusan – ${s.no}</div><div class="bb g21"><ol class="steps" id="steps">${PS.map((t,i)=>{let c=i<p.step?"d":i===p.step?"r":"";if(fi>=0){c=i<fi?"d":i===fi?"f":"sk"}return `<li class="${c}"><span class="c">${c==="d"?"✓":c==="f"?"!":i+1}</span>${t}</li>`}).join("")}</ol>
+ <div style="display:flex;flex-direction:column;gap:12px">${p.fail?msg+`<div class="btns"><button class="btn bp" id="btnKembali" onclick="go('pen')">Kembali ke Daftar</button></div>`:`<div class="lbl">Status</div><div class="prog"><i style="width:${p.step/PS.length*100}%"></i></div><div class="small">Langkah ${Math.min(p.step+1,PS.length)} dari ${PS.length}. Mohon tunggu, proses maksimal 30 detik.</div>${al("Identitas para pihak dianonimkan sebelum diproses oleh model.","i")}`}</div></div></div>`);}
+function loadList(title,items,k){return `<div class="box"><div class="bh">${title}</div><div class="bb g21"><ol class="steps" id="steps">${items.map((t,i)=>`<li class="${i<k?"d":i===k?"r":""}"><span class="c">${i<k?"✓":i+1}</span>${t}</li>`).join("")}</ol><div style="display:flex;flex-direction:column;gap:10px"><div class="lbl">Status</div><div class="prog"><i style="width:${k/items.length*100}%"></i></div><div class="small">Mohon tunggu, sistem sedang memproses.</div></div></div></div>`}
+/* ---------- DONUT ---------- */
+function donut(dist,size=210){let a=-Math.PI/2,r=size/2-6,ri=r*0.55,cx=size/2,cy=size/2,out="";dist.forEach((v,i)=>{if(v<=0)return;const b=a+v*2*Math.PI,lg=v>0.5?1:0;const P=(ang,rr)=>[cx+rr*Math.cos(ang),cy+rr*Math.sin(ang)];const[x1,y1]=P(a,r),[x2,y2]=P(b,r),[x3,y3]=P(b,ri),[x4,y4]=P(a,ri);out+=`<path d="M${x1} ${y1}A${r} ${r} 0 ${lg} 1 ${x2} ${y2}L${x3} ${y3}A${ri} ${ri} 0 ${lg} 0 ${x4} ${y4}Z" fill="${COL[i]}" stroke="#fff" stroke-width="1.5"/>`;if(v>=0.08){const[tx,ty]=P((a+b)/2,(r+ri)/2);out+=`<text x="${tx}" y="${ty}" font-size="10.5" text-anchor="middle" dominant-baseline="middle" fill="#333">${pc(v,0)}</text>`}a=b});return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${out}</svg>`}
+/* ---------- W-05 HASIL (UC-01 out) ---------- */
+function simFor(s){return s.sim==="none"?[]:s.sim==="few"?SIM.slice(2,4):SIM}
+function vHasil(){const s=sg(S.p.sid),list=DB.pred[s.id]||[],p=S.p.ver?list.find(x=>x.ver==S.p.ver):act(s.id),sims=simFor(s),H=S.role==="Hakim";
+ const ord=p.dist.map((v,i)=>[v,i]).sort((x,y)=>y[0]-x[0]);
+ return shell(`${S.role==="Panitera"?"Penyelesaian":"Penyelesaian Putusan"} › <b>Prediksi Putusan</b>`,`${disc}
+ <div class="box"><div class="bh">Informasi Sengketa<span style="font-size:12px">Versi prediksi: v${p.ver} · ${p.status}</span></div><div class="bb g2" id="info"><dl class="kv"><dt>Nomor Sengketa</dt><dd>${s.no}</dd><dt>Penggugat</dt><dd>${s.pem}</dd><dt>Jenis Pajak</dt><dd>${s.pajak}</dd></dl><dl class="kv"><dt>Pokok Sengketa</dt><dd>${s.objek}</dd><dt>Model</dt><dd>${p.model} · ${p.when}</dd><dt>Dibuat oleh</dt><dd>${esc(p.who)}</dd></dl></div></div>
+ <div class="box"><div class="bh">Hasil Prediksi Amar Putusan</div><div class="bb g12"><div style="display:flex;gap:18px;align-items:center" id="chart">${donut(p.dist)}<div class="legend">${ord.map(([v,i])=>`<span><i style="background:${COL[i]}"></i>${AMAR[i]} (${pc(v)})</span>`).join("")}</div></div>
+ <div id="probtbl"><div class="lbl">Amar dengan probabilitas tertinggi</div><div class="big" style="margin:2px 0 8px">${p.amar}</div><span class="pill ${p.conf<0.5?"p-o":"p-b"}">Skor keyakinan ${pc(p.conf)}${p.conf<0.5?" · keyakinan rendah":""}</span>
+ <table style="margin-top:10px"><thead><tr><th>Amar Putusan</th><th>Hasil Prediksi</th></tr></thead><tbody>${ord.map(([v,i])=>`<tr><td>${AMAR[i]}</td><td>${pc(v)}</td></tr>`).join("")}</tbody></table></div></div></div>
+ <div class="box"><div class="bh">Daftar Putusan Yang Memiliki Kemiripan</div><div class="bb" id="simbox">
+ ${s.sim==="few"?al(`Hanya <b>${sims.length} putusan sejenis</b> yang memenuhi ambang kemiripan berdasarkan metadata. Analisis disusun berdasarkan informasi yang tersedia.`,"w"):""}
+ ${s.sim==="none"?al("Tidak ada putusan sejenis yang sesuai berdasarkan metadata perkara (data yang tidak tersedia).","w"):""}
+ <table><thead><tr><th>No. Putusan</th><th>Amar Putusan</th><th>Persentase Kemiripan</th><th>Aksi</th></tr></thead><tbody>${sims.map((x,i)=>`<tr><td>${x.no}</td><td>${x.amar}</td><td>${x.k.toFixed(2).replace(".",",")}%</td><td style="white-space:nowrap"><button class="btn bp" style="padding:4px 8px" title="Unduh">${I.dl}</button></td></tr>`).join("")||`<tr><td colspan="4" class="small" style="text-align:center">Tidak ada putusan sejenis yang sesuai</td></tr>`}</tbody></table></div></div>
+ <div class="box"><div class="bb btns" id="aksi"><button class="btn bp" id="btnAnalisis" onclick="go('analisis',{sid:'${s.id}'})">${I.list}Analisis Hasil Prediksi</button>${H?`<button class="btn bi" id="btnBanding" onclick="go('banding',{sid:'${s.id}'})">${I.scale}Bandingkan Putusan Sejenis</button><button class="btn bs" id="btnEval" onclick="go('eval',{sid:'${s.id}'})">${I.star}Evaluasi Hasil Prediksi</button><button class="btn bw" id="btnChat" onclick="openChat('${s.id}')">${I.chat}Analisis Reasoning dengan ChatAI</button>`:""}<button class="btn" onclick="go('pen')">Kembali</button></div></div>`);}
+/* ---------- W-06 ANALISIS (UC-03) ---------- */
+const ARG=[["Penggugat","Keterlambatan penyetoran PPN masa Desember 2021 terjadi karena gangguan sistem e-Billing (bukti: tiket layanan)."],["Penggugat","Pokok pajak telah dilunasi sebelum Surat Tagihan Pajak diterbitkan."],["Tergugat","Penggugat terlambat menyampaikan SPT Masa pada dua masa pajak sebelumnya sehingga tidak memenuhi unsur kekhilafan."]];
+const DH=[["UU KUP Pasal 36 ayat (1) huruf a","Pengurangan/penghapusan sanksi administrasi yang dikenakan karena khilaf atau bukan karena kesalahan Wajib Pajak."],["UU No. 14 Tahun 2002 Pasal 31 ayat (3)","Kewenangan Pengadilan Pajak mengadili sengketa gugatan."],["PMK tentang Tata Cara Pengurangan atau Penghapusan Sanksi Administrasi","Syarat dan jangka waktu permohonan pengurangan sanksi."]];
+const FK=[["Permohonan diajukan dalam jangka waktu",+0.21],["Sanksi timbul karena kekhilafan, bukan kesalahan WP",+0.17],["Bukti pelunasan pokok pajak lengkap",+0.09],["Riwayat keterlambatan pelaporan 2 masa",-0.12],["Sebagian dalil tidak didukung bukti",-0.08]];
+function vAnalisis(){const s=sg(S.p.sid),p=act(s.id),m=S.p.miss||"";
+ if(S.p.loading) return shell("Prediksi Putusan › <b>Analisis Hasil Prediksi</b>",disc+loadList("Menyusun Analisis Hasil Prediksi – "+s.no,["Menampilkan hasil prediksi putusan","Mengambil informasi perkara yang digunakan","Mengidentifikasi argumen yang relevan","Mengidentifikasi dasar hukum yang berkaitan","Mengidentifikasi putusan relevan sebagai pembanding","Menyusun hasil analisis"],S.p.loading));
+ if(m==="all") return shell("Prediksi Putusan › <b>Analisis Hasil Prediksi</b>",`${disc}${al("<b>Hasil analisis tidak dapat ditampilkan.</b> Terjadi kendala saat menyusun hasil analisis. Silakan coba beberapa saat lagi atau hubungi helpdesk TIK.","d")}<div class="btns" id="aksi"><button class="btn bp" onclick="go('analisis',{sid:'${s.id}'})">Coba Lagi</button><button class="btn" onclick="go('hasil',{sid:'${s.id}'})">Kembali ke Hasil Prediksi</button></div>`);
+ const sec=(id,t,body)=>`<div class="box" id="${id}"><div class="bh">${t}</div><div class="bb">${body}</div></div>`;
+ return shell("Prediksi Putusan › <b>Analisis Hasil Prediksi</b>",`${disc}
+ <div class="g2">${sec("a_hasil","Hasil Prediksi Putusan",`<div class="lbl">Amar prediksi</div><div class="big">${p.amar}</div><div class="small">Skor keyakinan ${pc(p.conf)} · versi v${p.ver} · ${p.model}</div>`)}
+ ${sec("a_info","Informasi Perkara yang Digunakan",m==="info"?al("Informasi perkara tidak ditemukan. Data perkara yang digunakan dalam prediksi tidak tersedia.","w"):`<dl class="kv"><dt>Nomor Sengketa</dt><dd>${s.no}</dd><dt>Jenis Pajak / Masa</dt><dd>${s.pajak} / Desember 2021</dd><dt>Pokok Sengketa</dt><dd>${s.objek}</dd><dt>Nilai Sengketa</dt><dd>${s.nilai}</dd></dl>`)}</div>
+ <div class="g2">${sec("a_arg","Argumen yang Relevan",m==="arg"?al("Tidak ada argumen yang relevan.","w"):`<table><thead><tr><th>Pihak</th><th>Argumen</th></tr></thead><tbody>${ARG.map(a=>`<tr><td><span class="pill ${a[0]==="Penggugat"?"p-b":"p-o"}">${a[0]}</span></td><td>${a[1]}</td></tr>`).join("")}</tbody></table>`)}
+ ${sec("a_dh","Dasar Hukum yang Berkaitan",m==="dh"?al("Tidak ada dasar hukum yang relevan.","w"):DH.map(d=>`<p style="margin:0 0 8px"><b>${d[0]}</b><br><span class="small">${d[1]}</span></p>`).join(""))}</div>
+ <div class="g2">${sec("a_put","Putusan Relevan sebagai Pembanding",m==="put"?al("Tidak ada putusan yang relevan.","w"):`<table><thead><tr><th>No. Putusan</th><th>Amar</th><th>Kemiripan</th></tr></thead><tbody>${SIM.slice(0,3).map(x=>`<tr><td>${x.no}</td><td>${x.amar}</td><td>${x.k.toFixed(2).replace(".",",")}%</td></tr>`).join("")}</tbody></table>`)}
+ ${sec("a_fk","Faktor Dominan Prediksi",FK.map(([f,v])=>`<div style="display:grid;grid-template-columns:1.4fr 1fr 44px;gap:8px;align-items:center;font-size:12.5px;margin-bottom:6px"><span>${f}</span><div style="position:relative;height:10px;background:#eee;border-radius:3px"><i style="position:absolute;top:0;bottom:0;${v>0?`left:50%;width:${v*220}%;background:#00a65a`:`right:50%;width:${-v*220}%;background:#dd4b39`}"></i><i style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#999"></i></div><b style="color:${v>0?"#00a65a":"#dd4b39"}">${v>0?"+":""}${v.toFixed(2)}</b></div>`).join(""))}</div>
+ ${sec("a_sum","Ringkasan Hasil Analisis",`<p style="margin:0">Prediksi <b>${p.amar}</b> terutama didukung oleh terpenuhinya jangka waktu permohonan dan indikasi bahwa sanksi timbul karena kekhilafan. ${m==="put"?"":"Dua dari tiga putusan pembanding teratas berakhir dengan amar yang sama. "}Riwayat keterlambatan pelaporan menahan probabilitas pengabulan seluruhnya.</p>`)}
+ <div class="btns" id="aksi"><button class="btn bp" onclick="go('hasil',{sid:'${s.id}'})">Kembali ke Hasil Prediksi</button></div>`);}
+/* ---------- W-07/08 BANDING (UC-04) ---------- */
+function vBanding(){const s=sg(S.p.sid),sims=S.p.empty?[]:simFor(s);
+ return shell("Prediksi Putusan › <b>Bandingkan Putusan Sejenis</b>",`${disc}<div class="box"><div class="bh">Daftar Putusan Relevan Berdasarkan Hasil Prediksi – ${s.no}</div><div class="bb">
+ ${sims.length?"":al('<b>Tidak ada putusan sejenis yang memenuhi ambang batas kemiripan.</b> Proses perbandingan dihentikan.',"w")}
+ ${sims.length?dtc():""}<table id="simtbl"><thead><tr><th>No. Putusan</th><th>Amar Putusan</th><th>Persentase Kemiripan</th><th>Alasan Kemiripan</th><th>Aksi</th></tr></thead><tbody>${sims.map((x,i)=>`<tr><td>${x.no}</td><td>${x.amar}</td><td><b>${x.k.toFixed(2).replace(".",",")}%</b><div class="bar" style="width:90px;margin-top:3px"><i style="width:${x.k}%"></i></div></td><td class="small">${x.al}</td><td><button class="btn bp" id="cmp_${i}" onclick="go('dok',{sid:'${s.id}',i:${i}})">${I.eye}Lihat & Bandingkan</button></td></tr>`).join("")||`<tr><td colspan="5" class="small" style="text-align:center">Tidak ada data</td></tr>`}</tbody></table>
+ ${S.p.loadErr?`<div style="margin-top:10px">${al('<b>Dokumen putusan gagal diunduh dari server.</b> Silakan pilih kembali putusan dari daftar.',"d")}</div>`:""}
+ </div></div><div class="btns"><button class="btn" onclick="go('hasil',{sid:'${s.id}'})">Kembali ke Hasil Prediksi</button></div>`);}
+function vDok(){const s=sg(S.p.sid),x=SIM[S.p.i],noHl=S.p.nohl;
+ if(S.p.loading) return shell("Prediksi Putusan › Bandingkan › <b>Dokumen Putusan</b>",disc+loadList("Memuat Dokumen Putusan "+x.no.split(" ")[0],["Meminta dokumen putusan utuh ke Tax Court One","Menerima dokumen putusan dari Tax Court One","Memproses teks dokumen (OCR)","Menyorot amar dan pertimbangan hukum"],S.p.loading));const A=t=>noHl?t:`<mark class="a">${t}</mark>`,Pt=t=>noHl?t:`<mark class="p">${t}</mark>`;
+ return shell("Prediksi Putusan › Bandingkan › <b>Dokumen Putusan</b>",`${disc}${noHl?al("<b>Teks tidak dapat disorot secara otomatis.</b> Dokumen asli tetap ditampilkan tanpa sorotan.","w"):""}
+ <div class="g12"><div class="box"><div class="bh">Dokumen Putusan ${x.no.split(" ")[0]}<button class="btn" style="padding:3px 8px" title="Unduh">${I.dl}</button></div><div class="bb"><div class="small" style="margin-bottom:6px">${noHl?"":'<span style="background:var(--hl);padding:0 4px">■</span> Amar &nbsp; <span style="background:var(--hl2);padding:0 4px">■</span> Pertimbangan hukum'}</div><div class="doc" id="doc"><h4>PUTUSAN<br>Nomor ${x.no.split(" ")[0]}</h4>
+ <p><b>DUDUK PERKARA.</b> Penggugat mengajukan gugatan atas Keputusan Direktur Jenderal Pajak yang menolak permohonan pengurangan sanksi administrasi berupa bunga atas keterlambatan penyetoran PPN Masa Maret 2022 sebesar Rp511.400.000...</p>
+ <p><b>PERTIMBANGAN HUKUM.</b> ${Pt("Menimbang bahwa berdasarkan surat keterangan gangguan sistem pembayaran yang diterbitkan otoritas, Majelis berpendapat keterlambatan penyetoran terjadi bukan karena kesalahan Penggugat sehingga memenuhi ketentuan Pasal 36 ayat (1) huruf a UU KUP;")} ${Pt("Menimbang bahwa untuk Masa Februari 2022 tidak terdapat bukti pendukung sehingga koreksi sanksi untuk masa tersebut tetap dipertahankan;")}</p>
+ <p><b>MENGADILI.</b> ${A("Menyatakan mengabulkan sebagian gugatan Penggugat ... sehingga sanksi administrasi yang masih harus dibayar menjadi Rp102.280.000.")}</p></div></div></div>
+ <div class="box"><div class="bh">Perbandingan dengan Perkara ${s.no}</div><div class="bb"><table id="cmp"><thead><tr><th style="width:110px">Aspek</th><th>Perkara dianalisis</th><th>Putusan pembanding</th></tr></thead><tbody>
+ <tr><td><b>Fakta</b></td><td>Terlambat setor PPN Des 2021; sanksi Rp642,18 jt</td><td>Terlambat setor PPN Mar 2022; sanksi Rp511,40 jt</td></tr>
+ <tr><td><b>Dalil</b></td><td>Gangguan e-Billing; pokok sudah lunas</td><td>Gangguan sistem pembayaran; pokok sudah lunas</td></tr>
+ <tr style="background:#fff6e5"><td><b>Bukti kunci</b></td><td>Tiket layanan internal penggugat</td><td>Surat keterangan gangguan dari otoritas</td></tr>
+ <tr><td><b>Pertimbangan</b></td><td>–</td><td>Bukan kesalahan WP; satu masa tidak didukung bukti</td></tr>
+ <tr><td><b>Amar</b></td><td><i>Prediksi: ${act(s.id).amar}</i></td><td>${x.amar}</td></tr></tbody></table>
+ <div style="margin-top:10px">${al("<b>Perbedaan utama:</b> kekuatan bukti gangguan sistem (surat resmi otoritas vs tiket layanan internal).","i")}</div></div></div></div>
+ <div class="btns"><button class="btn" onclick="go('banding',{sid:'${s.id}'})">Kembali ke Daftar Putusan</button></div>`);}
+/* ---------- W-09 EVALUASI PREDIKSI (UC-05) ---------- */
+function vEval(){const s=sg(S.p.sid),p=act(s.id),v=S.p.v||"",H=DB.evalP.filter(e=>e.pid===p.id);
+ const O=[["DITERIMA","Terima hasil prediksi","S1 – Hasil prediksi dapat diterima sebagai informasi pendukung.","p-g"],["DIKOREKSI","Koreksi hasil prediksi","S2 – Terdapat informasi atau hasil yang perlu dikoreksi.","p-b"],["DITOLAK","Tolak hasil prediksi","S3 – Hasil prediksi tidak dapat digunakan.","p-r"],["DITANDAI","Tandai untuk ditinjau","S4 – Ditandai untuk ditindaklanjuti kemudian.","p-o"]];
+ let sub="";
+ if(v==="DIKOREKSI") sub=`<div class="g2"><label class="f">Amar menurut koreksi Hakim <span class="req">*</span><select id="kAmar">${AMAR.map(a=>`<option ${a==="Menolak"?"selected":""}>${a}</option>`).join("")}</select></label><label class="f">Bagian yang dikoreksi<select><option>Amar prediksi</option><option>Informasi perkara</option><option>Faktor dominan</option></select></label></div><label class="f">Koreksi yang diberikan <span class="req">*</span><textarea id="ket">${S.p.fill?"Bukti gangguan sistem hanya berupa tiket internal, belum memenuhi unsur kekhilafan.":""}</textarea></label>`;
+ if(v==="DITOLAK") sub=`<label class="f">Alasan penolakan <span class="req">*</span><textarea id="ket">${S.p.fill?"Fakta masa pajak pada prediksi tidak sesuai berkas.":""}</textarea></label>`;
+ if(v==="DITANDAI") sub=`<label class="f">Catatan penandaan (opsional)<textarea id="ket">${S.p.fill?"Tinjau ulang setelah sidang pembuktian lanjutan.":""}</textarea></label>`;
+ if(v==="DITERIMA") sub=`<label class="f">Keterangan (opsional)<textarea id="ket"></textarea></label>`;
+ return shell("Prediksi Putusan › <b>Evaluasi Hasil Prediksi</b>",`${disc}<div class="g21"><div class="box"><div class="bh">Evaluasi Hasil Prediksi – ${s.no}</div><div class="bb" style="display:flex;flex-direction:column;gap:12px">
+ <div id="ringkas" style="display:flex;gap:16px;align-items:center;background:#f7f9fb;padding:10px;border-radius:3px">${donut(p.dist,110)}<div><div class="lbl">Hasil prediksi</div><div class="big">${p.amar}</div><div class="small">Keyakinan ${pc(p.conf)} · ${s.objek}</div></div></div>
+ <div class="lbl">Tentukan hasil evaluasi</div><div class="opt" id="opsi">${O.map(o=>`<label class="${v===o[0]?"on":""}"><input type="radio" name="ev" ${v===o[0]?"checked":""} onchange="S.p.v='${o[0]}';S.p.err=0;render()"><span><b>${o[1]}</b> <span class="pill ${o[3]}">${o[0]}</span><small>${o[2]}</small></span></label>`).join("")}</div>
+ <div id="sub">${sub}</div>${S.p.err?`<div class="err" id="errm">${S.p.err}</div>`:""}
+ <div class="btns"><button class="btn bp" id="btnSimpan" ${v?"":"disabled"} onclick="saveEval('${s.id}')">Simpan Evaluasi</button><button class="btn" id="btnEvA" onclick="go('evala',{sid:'${s.id}'})">${I.list}Evaluasi Hasil Analisis</button><button class="btn" onclick="go('hasil',{sid:'${s.id}'})">Kembali</button></div></div></div>
+ <div class="box"><div class="bh">Riwayat Evaluasi</div><div class="bb" id="riw">${H.length?H.map(e=>`<div style="border-bottom:1px solid #eee;padding:6px 0"><span class="pill ${({DITERIMA:"p-g",DIKOREKSI:"p-b",DITOLAK:"p-r",DITANDAI:"p-o"})[e.st]}">${e.st}</span> <span class="small">${e.w}</span><div style="font-size:12.5px">${esc(e.ket||"–")}</div></div>`).join(""):'<span class="small">Belum ada evaluasi.</span>'}<div class="small" style="margin-top:8px">Evaluasi yang tersimpan tidak dapat diubah; perubahan pandangan dicatat sebagai evaluasi baru.</div></div></div></div>`);}
+function saveEval(sid){const v=S.p.v,k=($("#ket")||{}).value||"";if((v==="DIKOREKSI"||v==="DITOLAK")&&!k.trim()){S.p.err=(v==="DITOLAK"?"Alasan penolakan":"Koreksi")+" wajib diisi sebelum evaluasi disimpan.";render();return}
+ const p=act(sid);DB.evalP.unshift({pid:p.id,st:v,ket:(v==="DIKOREKSI"?"Koreksi amar: "+$("#kAmar").value+". ":"")+k,w:now()});p.evst=v;audit("Evaluasi hasil prediksi: "+v,p.id);S.p.v="";S.p.err=0;toast("Hasil evaluasi tersimpan dengan status "+v)}
+/* ---------- W-10 EVALUASI ANALISIS (UC-06) ---------- */
+function vEvalA(){const s=sg(S.p.sid),p=act(s.id),v=S.p.v||"";S.p.r=S.p.r||{};const C=["Informasi perkara","Argumen yang relevan","Dasar hukum","Putusan pembanding","Faktor dominan & ringkasan"];
+ return shell("Prediksi Putusan › Evaluasi › <b>Evaluasi Hasil Analisis</b>",`${disc}<div class="g12"><div class="box"><div class="bh">Hasil Analisis Prediksi – ${s.no}</div><div class="bb" id="hasilA"><div class="lbl">Ringkasan</div><p style="margin:4px 0 10px">Prediksi <b>${p.amar}</b> didukung terpenuhinya jangka waktu permohonan dan indikasi kekhilafan; riwayat keterlambatan pelaporan menahan pengabulan seluruhnya.</p>
+ <table><tbody><tr><td>Informasi perkara</td><td>${s.pajak}, ${s.nilai}</td></tr><tr><td>Argumen relevan</td><td>3 argumen (2 Penggugat, 1 Tergugat)</td></tr><tr><td>Dasar hukum</td><td>3 ketentuan</td></tr><tr><td>Putusan pembanding</td><td>3 putusan (kemiripan 82–91%)</td></tr><tr><td>Faktor dominan</td><td>5 faktor (3 mendukung, 2 menahan)</td></tr></tbody></table></div></div>
+ <div class="box"><div class="bh">Evaluasi Hakim</div><div class="bb" style="display:flex;flex-direction:column;gap:12px"><div class="opt" id="opsiA">${[["SETUJU","Setuju dengan hasil analisis","S-1 – Analisis relevan dan sesuai dengan perkara."],["TIDAK SETUJU","Tidak setuju dengan hasil analisis","S-2 – Ada komponen yang tidak relevan atau keliru."],["TIDAK PERLU","Tidak perlu menuliskan evaluasi","Proses selesai tanpa menyimpan evaluasi."]].map(o=>`<label class="${v===o[0]?"on":""}"><input type="radio" name="ea" ${v===o[0]?"checked":""} onchange="S.p.v='${o[0]}';S.p.err=0;render()"><span><b>${o[1]}</b><small>${o[2]}</small></span></label>`).join("")}</div>
+ ${v&&v!=="TIDAK PERLU"?`<div id="rate"><div class="lbl" style="margin-bottom:6px">Nilai relevansi tiap komponen (1–5) <span class="req">*</span></div>${C.map((c,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px"><span>${c}</span><span class="st">${[1,2,3,4,5].map(n=>`<button class="${S.p.r[i]===n?"on":""}" onclick="S.p.r[${i}]=${n};render()">${n}</button>`).join("")}</span></div>`).join("")}</div>
+ <label class="f">${v==="TIDAK SETUJU"?'Alasan ketidaksetujuan <span class="req">*</span>':"Catatan evaluasi (opsional)"}<textarea id="ketA">${S.p.fill?(v==="TIDAK SETUJU"?"Putusan pembanding ketiga tidak relevan karena isu tenggang waktu.":"Analisis membantu menyiapkan musyawarah."):""}</textarea></label>`:""}
+ ${S.p.err?`<div class="err" id="errA">${S.p.err}</div>`:""}<div class="btns"><button class="btn bp" id="btnSimpanA" ${v?"":"disabled"} onclick="saveEvA('${s.id}')">${v==="TIDAK PERLU"?"Selesai":"Simpan Evaluasi Analisis"}</button><button class="btn" onclick="go('eval',{sid:'${s.id}'})">Kembali</button></div></div></div></div>`);}
+function saveEvA(sid){const v=S.p.v;if(v==="TIDAK PERLU"){go("eval",{sid});toast("Proses evaluasi hasil analisis selesai tanpa catatan");return}
+ const miss=[0,1,2,3,4].filter(i=>!S.p.r[i]).length,k=$("#ketA").value.trim();
+ if(miss||(v==="TIDAK SETUJU"&&!k)){S.p.err=miss?`Evaluasi belum lengkap: ${miss} komponen belum diberi nilai.`:"Alasan ketidaksetujuan wajib diisi.";render();return}
+ const p=act(sid);DB.evalA.unshift({pid:p.id,st:v,r:{...S.p.r},ket:k,w:now()});audit("Evaluasi hasil analisis: "+v,p.id);go("eval",{sid});toast("Evaluasi hasil analisis tersimpan")}
+/* ---------- W-11 CHATAI (UC-07) ---------- */
+const QT={"Penjelasan Reasoning":["Faktor atau argumen apa yang paling berkontribusi terhadap hasil prediksi?","Prediksi Mengabulkan Sebagian didorong oleh dua faktor utama: permohonan diajukan dalam jangka waktu Pasal 36 ayat (1) huruf a UU KUP dan indikasi bahwa sanksi timbul karena kekhilafan. Riwayat keterlambatan pelaporan dua masa sebelumnya menahan probabilitas pengabulan seluruhnya.",[["UU KUP Pasal 36 ayat (1) huruf a",1],["PUT-012345.16/2023/PP/M.IVB",1]]],
+ "Dasar Hukum":["Pasal atau peraturan apa yang relevan dengan hasil prediksi?","Ketentuan utama adalah Pasal 36 ayat (1) huruf a UU KUP tentang pengurangan sanksi karena kekhilafan, Pasal 31 ayat (3) UU No. 14 Tahun 2002 tentang kewenangan mengadili gugatan, serta PMK tentang tata cara pengurangan sanksi administrasi.",[["UU KUP Pasal 36 ayat (1) huruf a",1],["UU 14/2002 Pasal 31 ayat (3)",1],["SE-12/PJ/2019",0]]],
+ "Pertimbangan Putusan Sejenis":["Bagaimana pertimbangan majelis pada putusan sejenis?","Pada 3 dari 5 putusan teratas, majelis mengabulkan (seluruhnya atau sebagian) bila terdapat bukti tertulis gangguan sistem dari otoritas. Putusan yang menolak umumnya karena permohonan melewati jangka waktu.",[["PUT-012345.16/2023/PP/M.IVB",1],["PUT-009871.16/2022/PP/M.IIA",1],["PUT-014420.16/2023/PP/M.XIA",1]]],
+ "Brainstorming Analisis":["Aspek apa yang perlu diuji majelis dari dalil gangguan e-Billing?","Majelis dapat menguji: (1) apakah gangguan tercatat resmi pada tanggal jatuh tempo, (2) apakah penggugat mencoba kanal pembayaran lain, dan (3) relevansi keterlambatan masa sebelumnya terhadap unsur kekhilafan. Penilaian tetap berada pada majelis.",[["Berita Acara Sidang (dokumen perkara)",1]]]};
+function openChat(sid){const p=act(sid);if(!DB.chat[p.id])DB.chat[p.id]={id:"CHT-"+p.id.slice(4),msgs:[],st:"Aktif",mulai:now(),sid};audit("Membuka sesi ChatAI",p.id);go("chat",{sid,t:"Penjelasan Reasoning"})}
+function ask(){const p=act(S.p.sid),c=DB.chat[p.id],t=S.p.t,q=$("#q").value.trim()||QT[t][0];c.msgs.push({u:1,t:q,k:t});
+ if(/cuaca|olahraga|resep/i.test(q)||S.p.noref){c.msgs.push({u:0,t:"Informasi yang mendukung jawaban tidak tersedia pada dokumen perkara, korpus putusan, maupun basis peraturan. Sistem tidak menampilkan jawaban yang tidak didukung sumber.",r:[],none:1})}
+ else c.msgs.push({u:0,t:QT[t][1],r:QT[t][2]});audit("Pertanyaan ChatAI ("+t+")",c.id);S.p.noref=0;render();const e=$(".chat");if(e)e.scrollTop=1e6}
+function vChat(){const s=sg(S.p.sid),p=act(s.id),c=DB.chat[p.id],last=c.msgs[c.msgs.length-1];
+ return shell("Prediksi Putusan › <b>Analisis Reasoning dengan ChatAI</b>",`${disc}<div class="g21"><div class="box"><div class="bh">ChatAI – Sesi ${c.id}<span style="font-size:12px">LLM on-premise</span></div><div class="bb" style="display:flex;flex-direction:column;gap:10px">
+ <div><div class="lbl" style="margin-bottom:5px">Jenis pertanyaan</div><div class="qt" id="qt">${Object.keys(QT).map((k,i)=>`<button class="${S.p.t===k?"on":""}" onclick="S.p.t='${k}';render()">S-${i+1} ${k}</button>`).join("")}</div></div>
+ <div class="chat" id="chat">${c.msgs.length?c.msgs.map(m=>`<div class="m ${m.u?"u":"a"}${m.ty?" ty":""}"><div class="who">${m.u?"Hakim · "+m.k:"ChatAI"}</div>${esc(m.t)}${m.r&&m.r.length?`<div>${m.r.map(([r,v])=>`<span class="ref ${v?"v":"x"}">${v?"✔ Terverifikasi":"⚠ Tidak ditemukan di korpus"} · ${esc(r)}</span>`).join("")}</div>`:""}</div>`).join(""):'<div class="small">Pilih jenis pertanyaan, lalu klik Kirim. Contoh pertanyaan telah disiapkan pada kotak di bawah.</div>'}</div>
+ ${last&&last.none?`<div class="btns" id="alt4a">${al("Tidak ada rujukan yang mendukung jawaban. Susun ulang pertanyaan atau akhiri percakapan.","w")}<button class="btn bp" onclick="$('#q').value='';$('#q').focus()">Susun Ulang Pertanyaan</button><button class="btn" onclick="endChat()">Tidak Melanjutkan</button></div>`:""}
+ <form style="display:flex;gap:8px" id="frm" onsubmit="event.preventDefault();ask()"><input type="text" id="q" style="flex:1" value="${esc(S.p.qv??QT[S.p.t][0])}"><button class="btn bp" id="btnKirim">Kirim</button></form>
+ <div class="btns"><button class="btn bw" id="btnFb" onclick="S.p.fb={};S.modal=mFb;render()">${I.star}Beri Feedback</button><button class="btn bd" id="btnAkhiri" onclick="endChat()">Akhiri Percakapan</button></div></div></div>
+ <div class="box"><div class="bh">Konteks Perkara (teranonimkan)</div><div class="bb" id="ctx"><dl class="kv" style="grid-template-columns:105px 1fr"><dt>Penggugat</dt><dd>[PIHAK-01]</dd><dt>Tergugat</dt><dd>Direktur Jenderal Pajak</dd><dt>Jenis pajak</dt><dd>${s.pajak}</dd><dt>Amar prediksi</dt><dd>${p.amar} (${pc(p.conf)})</dd><dt>Faktor dominan</dt><dd>5 faktor</dd><dt>Putusan sejenis</dt><dd>Top-3</dd></dl><div class="small" style="margin-top:8px">Rujukan diverifikasi otomatis terhadap korpus putusan dan basis peraturan.</div></div></div></div>`);}
+function endChat(){const p=act(S.p.sid),c=DB.chat[p.id];c.st="Selesai";audit("Mengakhiri dan menyimpan sesi ChatAI",c.id);go("hasil",{sid:S.p.sid});toast("Percakapan disimpan dan sesi ditutup")}
+/* ---------- W-12 FEEDBACK (UC-08) ---------- */
+function mFb(){const f=S.p.fb;return `<div class="modal"><div class="mb" id="mdl"><div class="mh2">Beri Feedback Hasil Prediksi<a onclick="S.modal=null;render()">✕</a></div><div class="mc">
+ <div class="lbl">Jenis feedback <span class="req">*</span></div><div class="opt">${[["Sesuai","Hasil prediksi sesuai","S-1 – Prediksi dan penjelasannya sesuai dengan telaah saya."],["Tidak Sesuai","Hasil prediksi belum sesuai","S-2 – Ada bagian prediksi atau reasoning yang belum sesuai."]].map(o=>`<label class="${f.j===o[0]?"on":""}"><input type="radio" name="fj" ${f.j===o[0]?"checked":""} onchange="S.p.fb.j='${o[0]}';render()"><span><b>${o[1]}</b><small>${o[2]}</small></span></label>`).join("")}</div>
+ <div style="display:flex;justify-content:space-between;align-items:center"><span class="lbl">Rating kualitas jawaban <span class="req">*</span></span><span class="st">${[1,2,3,4,5].map(n=>`<button class="${f.r===n?"on":""}" onclick="S.p.fb.r=${n};render()">${n}</button>`).join("")}</span></div>
+ ${f.j==="Tidak Sesuai"?`<div><div class="lbl" style="margin-bottom:5px">Kategori masalah</div><div class="qt">${["Rujukan keliru","Fakta tidak tepat","Reasoning lemah","Bahasa tidak jelas"].map(k=>`<button class="${(f.k||[]).includes(k)?"on":""}" onclick="const a=S.p.fb.k=S.p.fb.k||[];a.includes('${k}')?a.splice(a.indexOf('${k}'),1):a.push('${k}');render()">${k}</button>`).join("")}</div></div>`:""}
+ <label class="f">Penjelasan / alasan ${f.j==="Tidak Sesuai"?"ketidaksesuaian":"feedback"} (apabila diperlukan)<textarea id="fbk">${f.txt||""}</textarea></label>${f.err?`<div class="err" id="errF">${f.err}</div>`:""}
+ <div class="small">Feedback akan dikaitkan dengan hasil prediksi dan percakapan ChatAI ini.</div></div><div class="mf"><button class="btn" onclick="S.modal=null;render()">Batal</button><button class="btn bp" id="btnKirimFb" onclick="saveFb()">Kirim Feedback</button></div></div></div>`}
+function saveFb(){const f=S.p.fb;f.txt=$("#fbk").value;if(!f.j||!f.r){f.err="Feedback belum lengkap. Pilih jenis feedback dan beri rating sebelum mengirim.";render();return}
+ const p=act(S.p.sid);DB.fb.unshift({pid:p.id,chat:DB.chat[p.id].id,j:f.j,r:f.r,k:f.k||[],txt:f.txt,w:now(),st:"Diteruskan ke tim pengelola model"});audit("Feedback hasil prediksi: "+f.j,p.id);S.modal=null;S.p.fb={};toast("Feedback telah tersimpan dan dikaitkan dengan hasil prediksi serta percakapan ChatAI")}
+/* ---------- W-13..16 DISPARITAS (UC-09) ---------- */
+function vDisp(){const sel=S.p.d||"";
+ return shell("<b>Deteksi Disparitas Putusan</b>",`<div class="box"><div class="bh">Parameter Deteksi</div><div class="bb" id="param" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+ <label class="f">Periode putusan sejenis dari<input type="month" value="2021-01"></label><label class="f">sampai<input type="month" value="2025-06"></label><label class="f">Jenis pajak<select><option>Semua</option><option>PPN</option><option>Pabean</option><option>PPh Pasal 23</option></select></label>
+ <label class="f">Ambang batas indeks disparitas<input type="number" value="0.60" step="0.05" style="width:110px"></label><label class="f">Minimum putusan sejenis<input type="number" value="10" style="width:90px"></label><span class="small">Parameter ditetapkan oleh Pimpinan dan tersimpan di sistem.</span></div></div>
+ <div class="box"><div class="bh">Putusan yang Sedang Ditangani</div><div class="bb">${dtc()}<table id="dtbl"><thead><tr><th></th><th>No. Sengketa</th><th>Nama Pemohon</th><th>Jenis Pajak</th><th>Majelis</th><th>Amar Draf Putusan</th><th>Putusan Sejenis</th></tr></thead><tbody>
+ ${DP.map(d=>`<tr class="clk ${sel===d.id?"sel":""}" id="d_${d.id}" onclick="S.p.d='${d.id}';render()"><td><input type="radio" ${sel===d.id?"checked":""}></td><td>${d.no}</td><td>${d.pem}</td><td>${d.pajak}</td><td>${d.mj}</td><td>${d.draf}</td><td>${d.nsim}</td></tr>`).join("")}</tbody></table>${pg(DP.length,DP.length)}
+ <div class="btns" style="margin-top:10px"><button class="btn bp" id="btnDeteksi" ${sel?"":"disabled"} onclick="runDisp()">${I.scale}Deteksi Disparitas</button></div></div></div>`);}
+function idxOf(d){const t=d.dist.reduce((a,b)=>a+b,0),same=d.dist[AMAR.indexOf(d.draf)]||0;return {t,same,idx:(t-same)/t}}
+function runDisp(){const d=DP.find(x=>x.id===S.p.d);audit("Meminta deteksi disparitas",d.no);go("disphasil",{d:d.id})}
+function vDispHasil(){const d=DP.find(x=>x.id===S.p.d);let body="";
+ if(S.p.loading) return shell("Deteksi Disparitas › <b>Proses Deteksi</b>",loadList("Proses Deteksi Disparitas – "+d.no,["Mengambil data putusan dan hasil perbandingan dengan putusan sejenis","Memeriksa kelengkapan informasi","Membandingkan hasil dengan ambang batas disparitas","Menentukan tingkat/indikasi disparitas"],S.p.loading));
+ const stop=(t)=>`${al(t,"d")}<div class="btns"><button class="btn bp" onclick="go('disp')">Kembali ke Parameter</button></div>`;
+ if(d.flag==="noput") body=stop("<b>Informasi putusan tidak tersedia.</b> Sistem tidak menemukan data putusan yang diperlukan untuk melakukan deteksi disparitas. Proses deteksi dihentikan.");
+ else if(d.flag==="nocmp") body=stop("<b>Data pembanding tidak tersedia.</b> Hasil perbandingan atau data putusan sejenis belum tersedia. Pastikan data pembanding tersedia (jalankan prediksi/perbandingan) sebelum deteksi dapat dilakukan kembali.");
+ else if(d.flag==="insuf") body=`${al(`<b>Informasi pendukung tidak mencukupi.</b> Hanya ${d.nsim} putusan sejenis tersedia (minimum 10). Sistem tidak dapat menentukan indikasi disparitas secara andal; proses dihentikan tanpa kesimpulan.`,"w")}<div class="btns"><button class="btn bp" onclick="go('disp')">Kembali ke Parameter</button></div>`;
+ else{const {t,same,idx}=idxOf(d),dis=idx>=0.6;
+  body=`<div class="g12"><div class="box"><div class="bh">Hasil Deteksi Disparitas – ${d.no}</div><div class="bb" id="hasilD" style="display:flex;flex-direction:column;gap:12px">
+  ${dis?al(`<b>Terdapat indikasi disparitas.</b> Amar draf <b>${d.draf}</b> berbeda dengan ${t-same} dari ${t} putusan sejenis.`,"w","warn"):al(`<b>Tidak terdapat indikasi disparitas.</b> Amar draf <b>${d.draf}</b> selaras dengan mayoritas putusan sejenis.`,"s")}
+  <dl class="kv"><dt>Indeks disparitas</dt><dd style="color:${dis?"#dd4b39":"#00a65a"}">${idx.toFixed(2).replace(".",",")}</dd><dt>Ambang batas</dt><dd>0,60</dd><dt>Putusan sejenis</dt><dd>${t} putusan (2021–2025)</dd></dl>
+  <div class="gauge"><b style="left:60%"></b><i style="left:${idx*100}%"></i></div><div class="small">Garis merah = ambang batas; garis hitam = indeks perkara.</div>
+  ${S.p.saveErr?al("<b>Hasil deteksi belum berhasil disimpan.</b> Informasi hasil deteksi tetap dipertahankan. Klik Simpan Ulang untuk mengulangi penyimpanan.","d"):""}
+  <div class="btns">${S.p.saved?`<span class="pill p-g">Tersimpan sebagai riwayat analisis</span>${dis?`<button class="btn bp" onclick="go('lap',{id:'${S.p.saved}'})">Buka Laporan Disparitas</button>`:""}`:`<button class="btn bp" id="btnSimpanD" onclick="saveDisp()">${S.p.saveErr?"Simpan Ulang":"Simpan Hasil Deteksi"}</button>`}<button class="btn" onclick="go('disp')">Kembali</button></div></div></div>
+  <div class="box"><div class="bh">Sebaran Amar Putusan Sejenis</div><div class="bb" id="sebaran">${AMAR.map((a,i)=>d.dist[i]?`<div style="display:grid;grid-template-columns:150px 1fr 28px;gap:8px;align-items:center;font-size:12.5px;margin-bottom:6px"><span>${a}${a===d.draf?" <b>(draf)</b>":""}</span><div class="bar"><i style="width:${d.dist[i]/t*100}%;background:${a===d.draf?"#dd4b39":"#3c8dbc"}"></i></div><b>${d.dist[i]}</b></div>`:"").join("")}
+  <table style="margin-top:8px"><thead><tr><th>Putusan terkait</th><th>Amar</th><th>Kemiripan</th></tr></thead><tbody>${SIM.slice(0,4).map(x=>`<tr><td>${x.no.split(" ")[0]}</td><td>${x.amar}</td><td>${x.k.toFixed(1).replace(".",",")}%</td></tr>`).join("")}</tbody></table></div></div></div>`}
+ return shell("Deteksi Disparitas › <b>Hasil Deteksi</b>",body);}
+function saveDisp(){const d=DP.find(x=>x.id===S.p.d);if(d.saveFail&&!S.p.saveErr){S.p.saveErr=1;audit("Gagal menyimpan hasil deteksi",d.no);render();return}
+ const {t,same,idx}=idxOf(d),dis=idx>=0.6;const L={id:"LDP-"+String(DB.lap.length+1).padStart(3,"0"),d:d.id,no:d.no,pem:d.pem,idx,dis,st:dis?"Menunggu Peninjauan":"Tidak Ada Indikasi",w:now(),cat:"",hist:dis?["Dideteksi","Menunggu Peninjauan"]:["Tidak Ada Indikasi"]};DB.lap.unshift(L);
+ audit(dis?"Simpan laporan disparitas (Dideteksi → Menunggu Peninjauan)":"Simpan hasil deteksi (tidak ada indikasi)",L.id);S.p.saved=L.id;S.p.saveErr=0;toast(dis?"Laporan disparitas tersimpan. Notifikasi peringatan dikirim; status Menunggu Peninjauan":"Hasil deteksi disimpan sebagai riwayat analisis")}
+function vLapList(){return shell("<b>Laporan Disparitas</b>",`<div class="box"><div class="bh">Riwayat Laporan Disparitas</div><div class="bb">${dtc()}<table id="ltbl"><thead><tr><th>ID Laporan</th><th>No. Sengketa</th><th>Nama Pemohon</th><th>Indeks</th><th>Tanggal Deteksi</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${DB.lap.map(l=>`<tr><td>${l.id}</td><td>${l.no}</td><td>${l.pem}</td><td>${l.idx.toFixed(2).replace(".",",")}</td><td>${l.w}</td><td><span class="pill ${({"Menunggu Peninjauan":"p-o","Terkonfirmasi":"p-b","Ditindaklanjuti":"p-g","Diabaikan":"p-x","Tidak Ada Indikasi":"p-t"})[l.st]}">${l.st}</span></td><td>${l.dis?`<button class="btn bp" onclick="go('lap',{id:'${l.id}'})">${I.eye}Tinjau</button>`:""}</td></tr>`).join("")||`<tr><td colspan="7" class="small" style="text-align:center">Belum ada laporan disparitas</td></tr>`}</tbody></table></div></div>`)}
+function vLap(){const L=DB.lap.find(x=>x.id===S.p.id),d=DP.find(x=>x.id===L.d),{t,same}=idxOf(d);const flow=["Dideteksi","Menunggu Peninjauan","Terkonfirmasi","Ditindaklanjuti"];
+ const tl=flow.map(f=>`<span class="${L.st===f?"on":L.hist.includes(f)?"pa":""}">${f}</span>`).join("›")+(L.st==="Diabaikan"?`›<span class="x">Diabaikan</span>`:"");
+ let dec="";if(L.st==="Menunggu Peninjauan")dec=`<div class="lbl">Keputusan Pimpinan atas temuan</div><div class="btns"><button class="btn bs" id="btnValid" onclick="setL('Terkonfirmasi')">${I.ok}Validasi Temuan</button><button class="btn bd" id="btnTolak" onclick="setL('Diabaikan')">${I.x}Tolak Temuan</button></div>`;
+ if(L.st==="Terkonfirmasi")dec=`<label class="f">Catatan resolusi / tindak lanjut <span class="req">*</span><textarea id="tln">Dibahas dalam rapat pleno hakim untuk menyamakan pendekatan pembuktian unsur kekhilafan pada sengketa Pasal 36 KUP.</textarea></label><div class="btns"><button class="btn bp" id="btnTL" onclick="L0=DB.lap.find(x=>x.id==='${L.id}');L0.cat=$('#tln').value;setL('Ditindaklanjuti')">Simpan Tindak Lanjut</button></div>`;
+ if(L.st==="Ditindaklanjuti")dec=al("<b>Ditindaklanjuti.</b> "+esc(L.cat),"s");if(L.st==="Diabaikan")dec=al("Temuan ditolak oleh Pimpinan. Status laporan <b>Diabaikan</b> dan disimpan sebagai riwayat analisis.","i");
+ return shell("Laporan Disparitas › <b>"+L.id+"</b>",`<div class="box"><div class="bh">Status Laporan ${L.id}</div><div class="bb"><div class="tl" id="tl">${tl}</div></div></div>
+ <div class="g12"><div class="box"><div class="bh">Temuan Disparitas – ${L.no}</div><div class="bb"><dl class="kv"><dt>Nama Pemohon</dt><dd>${L.pem}</dd><dt>Amar draf putusan</dt><dd>${d.draf}</dd><dt>Indeks disparitas</dt><dd style="color:#dd4b39">${L.idx.toFixed(2).replace(".",",")} (ambang 0,60)</dd><dt>Putusan sejenis</dt><dd>${t} putusan; ${t-same} beramar berbeda</dd><dt>Tanggal deteksi</dt><dd>${L.w}</dd></dl>
+ <table style="margin-top:10px"><thead><tr><th>Putusan terkait</th><th>Majelis</th><th>Amar</th></tr></thead><tbody>${SIM.slice(0,4).map((x,i)=>`<tr><td>${x.no.split(" ")[0]}</td><td>Majelis ${"ABCD"[i]}</td><td>${x.amar}</td></tr>`).join("")}</tbody></table><div class="small" style="margin-top:6px">Nama majelis disamarkan pada tampilan agregat.</div></div></div>
+ <div class="box"><div class="bh">Peninjauan Pimpinan</div><div class="bb" id="dec" style="display:flex;flex-direction:column;gap:10px">${dec}</div></div></div><div class="btns"><button class="btn" onclick="go('laplist')">Kembali ke Daftar Laporan</button></div>`);}
+function setL(st){const L=DB.lap.find(x=>x.id===S.p.id);L.st=st;L.hist.push(st);audit("Status laporan disparitas: "+st,L.id);toast("Status laporan menjadi "+st)}
+/* ---------- LAIN-LAIN ---------- */
+function vRiwayat(){const all=Object.values(DB.pred).flat().slice().reverse();return shell("<b>Riwayat Prediksi</b>",`<div class="box"><div class="bh">Riwayat Prediksi Putusan</div><div class="bb">${dtc()}<table><thead><tr><th>ID Prediksi</th><th>No. Sengketa</th><th>Amar Prediksi</th><th>Keyakinan</th><th>Waktu</th><th>Dibuat oleh</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${all.map(p=>`<tr><td>${p.id}</td><td>${sg(p.sid).no}</td><td>${p.amar}</td><td>${pc(p.conf)}</td><td>${p.when}</td><td>${esc(p.who)}</td><td><span class="pill ${p.status==="Aktif"?"p-g":"p-x"}">${p.status}</span></td><td><button class="btn bp" onclick="go('hasil',{sid:'${p.sid}',ver:${p.ver}})">${I.eye}</button></td></tr>`).join("")}</tbody></table></div></div>`)}
+function vEvalKu(){return shell("<b>Evaluasi & Feedback</b>",`<div class="g2"><div class="box"><div class="bh">Evaluasi Hasil Prediksi</div><div class="bb"><table><thead><tr><th>Prediksi</th><th>Status</th><th>Waktu</th></tr></thead><tbody>${DB.evalP.map(e=>`<tr><td>${e.pid}</td><td>${e.st}</td><td>${e.w}</td></tr>`).join("")||'<tr><td colspan="3" class="small">Belum ada</td></tr>'}</tbody></table></div></div><div class="box"><div class="bh">Feedback ChatAI</div><div class="bb"><table><thead><tr><th>Prediksi</th><th>Jenis</th><th>Rating</th><th>Status</th></tr></thead><tbody>${DB.fb.map(f=>`<tr><td>${f.pid}</td><td>${f.j}</td><td>${f.r}/5</td><td>${f.st}</td></tr>`).join("")||'<tr><td colspan="4" class="small">Belum ada</td></tr>'}</tbody></table></div></div></div>`)}
+function vChatKu(){const cs=Object.entries(DB.chat);return shell("<b>Sesi ChatAI</b>",`<div class="box"><div class="bh">Riwayat Sesi ChatAI</div><div class="bb"><table><thead><tr><th>Sesi</th><th>Prediksi</th><th>Mulai</th><th>Jumlah pesan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${cs.map(([k,c])=>`<tr><td>${c.id}</td><td>${k}</td><td>${c.mulai}</td><td>${c.msgs.length}</td><td>${c.st}</td><td><button class="btn bp" onclick="go('chat',{sid:'${c.sid}',t:'Penjelasan Reasoning'})">Buka Kembali</button></td></tr>`).join("")||'<tr><td colspan="6" class="small">Belum ada sesi</td></tr>'}</tbody></table></div></div>`)}
+function vAudit(){return shell("<b>Jejak Audit</b>",`<div class="box"><div class="bh">Jejak Audit (tidak dapat diubah)</div><div class="bb">${dtc()}<table><thead><tr><th>Waktu</th><th>Pengguna</th><th>Aksi</th><th>Objek</th></tr></thead><tbody>${DB.audit.map(a=>`<tr><td>${a.w}</td><td>${esc(a.u)}</td><td>${esc(a.a)}</td><td>${esc(a.o)}</td></tr>`).join("")}</tbody></table></div></div>`)}
+/* ---------- CALLOUTS (untuk dokumentasi) ---------- */
+function mark(list){document.querySelectorAll('.callout').forEach(e=>e.remove());list.forEach(([q,n,pad])=>{const el=document.querySelector(q);if(!el)return;const r=el.getBoundingClientRect(),p=pad??4;const c=document.createElement('div');c.className='callout';c.style.left=(r.left+scrollX-p)+'px';c.style.top=(r.top+scrollY-p)+'px';c.style.width=(r.width+2*p)+'px';c.style.height=(r.height+2*p)+'px';c.innerHTML=(r.left-p<14)?'<span style="left:auto;right:-13px">'+n+'</span>':'<span>'+n+'</span>';document.body.appendChild(c)})}
+const V={login:vLogin,home:vHome,pen:vPen,proses:vProses,hasil:vHasil,analisis:vAnalisis,banding:vBanding,dok:vDok,eval:vEval,evala:vEvalA,chat:vChat,disp:vDisp,disphasil:vDispHasil,laplist:vLapList,lap:vLap,riwayat:vRiwayat,evalku:vEvalKu,chatku:vChatKu,audit:vAudit};
+function render(){if(!S.role&&S.scr!=="login")S.scr="login";document.querySelectorAll('.callout').forEach(e=>e.remove());$("#root").innerHTML=V[S.scr]()}
+render();
+</script>

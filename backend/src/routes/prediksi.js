@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { query } from '../db.js';
-import { bad, uuid } from '../lib/errors.js';
+import { bad, gangguan, uuid } from '../lib/errors.js';
 import { peran, wajibMasuk } from '../middleware/auth.js';
 import { ambilPrediksi, generatePrediksi, riwayatPrediksi } from '../services/prediksiService.js';
-import { ambilAnalisis, bandingkan } from '../services/analisisService.js';
+import { ambilAnalisis, bandingkan, DOKUMEN_GAGAL } from '../services/analisisService.js';
 
 const router = Router();
 router.use(wajibMasuk);
@@ -37,10 +37,11 @@ router.get('/:id/pembanding/:putusanId', peran('Hakim'), async (req, res) => {
 
 router.get('/putusan/:id/unduh', peran('Panitera', 'Hakim'), async (req, res) => {
   const { rows } = await query(
-    `SELECT nomor_putusan, duduk_perkara, pertimbangan, amar_teks FROM putusan WHERE id = $1`,
+    `SELECT nomor_putusan, duduk_perkara, pertimbangan, amar_teks, dokumen_tersedia FROM putusan WHERE id = $1`,
     [uuid(req.params.id, 'Putusan')],
   );
   if (!rows[0]) throw bad('Putusan tidak ditemukan.', 404);
+  if (!rows[0].dokumen_tersedia) throw gangguan(DOKUMEN_GAGAL, 502);
   const teks = [
     `PUTUSAN`,
     `Nomor ${rows[0].nomor_putusan}`,

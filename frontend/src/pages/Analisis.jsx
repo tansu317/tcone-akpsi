@@ -13,13 +13,23 @@ export default function Analisis() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [galat, setGalat] = useState('');
-  useEffect(() => { api(`/prediksi/${id}/analisis`).then(setData).catch((e) => setGalat(e.message)); }, [id]);
+  const [percobaan, setPercobaan] = useState(0);
+  useEffect(() => {
+    setGalat('');
+    setData(null);
+    api(`/prediksi/${id}/analisis`).then(setData).catch((e) => setGalat(e.message));
+  }, [id, percobaan]);
 
   return (
     <Shell crumb={<>Prediksi Putusan › <b>Analisis Hasil Prediksi</b></>}>
       <Disc />
-      {galat ? <Alert jenis="d">{galat}</Alert> : null}
-      {!data ? <div className="small">Memuat analisis...</div> : <>
+      {galat ? <>
+        <Alert jenis="d">{galat}</Alert>
+        <div className="btns">
+          <button className="btn bp" onClick={() => setPercobaan((n) => n + 1)}>Coba Lagi</button>
+          <button className="btn" onClick={() => navigate(`/prediksi/${id}`)}>Kembali ke Hasil Prediksi</button>
+        </div>
+      </> : !data ? <div className="small">Memuat analisis...</div> : <>
         <div className="g2">
           <Kotak judul="Hasil Prediksi Putusan">
             <div className="lbl">Amar prediksi</div>
@@ -27,12 +37,12 @@ export default function Analisis() {
             <div className="small">Skor keyakinan {persen(data.prediksi.skorKeyakinan)} · versi v{data.prediksi.versi} · {data.prediksi.model}</div>
           </Kotak>
           <Kotak judul="Informasi Perkara yang Digunakan">
-            <dl className="kv">
+            {data.perkara ? <dl className="kv">
               <dt>Nomor Sengketa</dt><dd>{data.perkara.nomorSengketa}</dd>
               <dt>Jenis Pajak / Masa</dt><dd>{data.perkara.jenisPajak} / {data.perkara.masaPajak}</dd>
               <dt>Pokok Sengketa</dt><dd>{data.perkara.pokokSengketa}</dd>
               <dt>Nilai Sengketa</dt><dd>{rupiah(data.perkara.nilaiSengketa)}</dd>
-            </dl>
+            </dl> : <Alert jenis="w">Informasi perkara tidak ditemukan. Data perkara yang digunakan dalam prediksi tidak tersedia.</Alert>}
           </Kotak>
         </div>
         <div className="g2">

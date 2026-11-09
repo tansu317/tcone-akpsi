@@ -1,9 +1,11 @@
 import { query } from '../db.js';
-import { angka, bad } from '../lib/errors.js';
+import { angka, bad, gangguan } from '../lib/errors.js';
+
+export const DOKUMEN_GAGAL = 'Dokumen putusan gagal diunduh dari server. Silakan pilih kembali putusan dari daftar.';
 
 export async function ambilAnalisis(prediksiId) {
   const analisis = await query(
-    `SELECT a.id, a.ringkasan, a.status, hp.kode, ka.nama AS amar, hp.skor_keyakinan,
+    `SELECT a.id, a.ringkasan, a.status, a.informasi_tersedia, hp.kode, ka.nama AS amar, hp.skor_keyakinan,
             hp.versi, m.nama AS model_nama, m.versi AS model_versi,
             p.nomor_sengketa, p.jenis_pajak, p.masa_pajak, p.pokok_sengketa, p.nilai_sengketa
      FROM analisis_perkara a
@@ -16,6 +18,13 @@ export async function ambilAnalisis(prediksiId) {
   );
   const baris = analisis.rows[0];
   if (!baris) return null;
+  if (baris.status === 'Gagal') {
+    await query(`UPDATE analisis_perkara SET status = 'Tersedia' WHERE id = $1`, [baris.id]);
+    throw gangguan(
+      'Hasil analisis tidak dapat ditampilkan. Terjadi kendala saat menyusun hasil analisis. Silakan coba beberapa saat lagi atau hubungi helpdesk TIK.',
+      503,
+    );
+  }
 
   const [argumen, hukum, faktor, putusan] = await Promise.all([
     query(`SELECT pihak, isi FROM argumen WHERE analisis_id = $1 ORDER BY urutan`, [baris.id]),
@@ -50,13 +59,13 @@ export async function ambilAnalisis(prediksiId) {
       versi: baris.versi,
       model: `${baris.model_nama} v${baris.model_versi}`,
     },
-    perkara: {
+    perkara: baris.informasi_tersedia ? {
       nomorSengketa: baris.nomor_sengketa,
       jenisPajak: baris.jenis_pajak,
       masaPajak: baris.masa_pajak,
       pokokSengketa: baris.pokok_sengketa,
       nilaiSengketa: angka(baris.nilai_sengketa),
-    },
+    } : null,
     argumen: argumen.rows,
     dasarHukum: hukum.rows,
     faktor: faktor.rows.map((r) => ({ nama: r.nama_faktor, kontribusi: angka(r.kontribusi) })),
@@ -71,7 +80,8 @@ export async function ambilAnalisis(prediksiId) {
 export async function bandingkan(prediksiId, putusanId) {
   const ada = await query(
     `SELECT k.catatan_perbedaan, k.persentase, t.nomor_putusan, t.amar, t.duduk_perkara,
-            t.pertimbangan, t.amar_teks, hp.perkara_id, ka.nama AS amar_prediksi
+            t.pertimbangan, t.amar_teks, t.dokumen_tersedia, t.ocr_berhasil,
+            hp.perkara_id, ka.nama AS amar_prediksi
      FROM kemiripan_putusan k
      JOIN putusan t ON t.id = k.putusan_id
      JOIN hasil_prediksi hp ON hp.id = k.hasil_prediksi_id
@@ -81,6 +91,7 @@ export async function bandingkan(prediksiId, putusanId) {
   );
   const baris = ada.rows[0];
   if (!baris) throw bad('Putusan pembanding tidak ditemukan pada prediksi ini.', 404);
+  if (!baris.dokumen_tersedia) throw gangguan(DOKUMEN_GAGAL, 502);
 
   const perkara = await query(
     `SELECT fakta, dalil, bukti_kunci, nomor_sengketa FROM perkara WHERE id = $1`,
@@ -131,6 +142,7 @@ export async function bandingkan(prediksiId, putusanId) {
     dudukPerkara: baris.duduk_perkara,
     pertimbangan: baris.pertimbangan,
     amarTeks: baris.amar_teks,
+    sorotan: baris.ocr_berhasil,
     catatanPerbedaan: baris.catatan_perbedaan,
     aspek: aspek.rows.map((r) => ({
       aspek: r.aspek,

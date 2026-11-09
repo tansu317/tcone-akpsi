@@ -20,7 +20,10 @@ export async function api(path, { method = 'GET', body } = {}) {
 export async function unduhTeks(path, nama) {
   const token = localStorage.getItem('siproperti_token');
   const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-  if (!res.ok) throw new Error('Dokumen gagal diunduh.');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.pesan || 'Dokumen gagal diunduh.');
+  }
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

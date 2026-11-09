@@ -1,0 +1,41 @@
+ALUR DETAIL REAL USE CASE SIPROPERTI – PAKET FIGMA
+===================================================
+
+Isi paket
+---------
+1_Board_Alur_per_Use_Case/   9 board (UC-01 s.d. UC-09). Setiap board memuat semua use scenario
+                             use case tersebut; satu baris = satu use scenario.
+2_Alur_per_Use_Scenario/     42 file, satu file per use scenario (US-01.1 s.d. US-09.7).
+3_Prototipe_HTML_tcone_siproperti.html   Prototipe interaktif sumber desain.
+
+Isi setiap alur
+---------------
+Setiap langkah use scenario digambarkan sebagai satu KARTU yang berisi:
+  - nomor langkah dan pelaku (Panitera, Hakim, Pimpinan, Sistem, Tax Court One),
+  - "Langkah esensial" = nomor langkah pada use case description Tugas 3 (mis. 4a, S-1.2),
+  - teks langkah (sama dengan Bab 4.2 dokumen Word),
+  - kode dan nama layar (W-xx, sesuai Windows Navigation Diagram Bab 4.4),
+  - tampilan layar pada keadaan langkah tersebut; KOTAK MERAH menandai elemen yang
+    diklik, diisi, atau ditampilkan sistem pada langkah itu.
+Kartu dihubungkan panah sesuai urutan alur. Total 207 kartu langkah untuk 42 use scenario.
+
+Cara import ke Figma
+--------------------
+1. Buka Figma > buat Design file baru.
+2. Seret (drag & drop) file SVG ke kanvas, atau menu ☰ > File > Place image...
+   Disarankan mengimpor board per use case (folder 1) satu per satu.
+3. Hasil impor berupa layer yang dapat diedit:
+   - Header, US-xx.x_Judul, US-xx.x_Langkah_n (kartu), Panah_n, Layar, Sorotan;
+   - semua teks menjadi layer teks (font Inter, bawaan Figma);
+   - tampilan layar tetap terdiri atas layer kotak, teks, dan ikon yang dapat diedit.
+4. Tips:
+   - Pilih group langkah lalu Ctrl/Cmd+Alt+G untuk menjadikannya Frame.
+   - Kartu dapat diubah menjadi Component agar gaya kartu seragam.
+   - Kotak merah (group "Sorotan") dapat disembunyikan bila ingin layar bersih.
+   - Untuk prototyping Figma, hubungkan Frame layar dengan Prototype > Interactions.
+
+Catatan
+-------
+- US-01.4 = putusan sejenis yang ditemukan hanya sedikit; US-01.5 = tidak ada putusan
+  sejenis yang sesuai (penomoran mengikuti dokumen Tugas 4 v2).
+- Seluruh nama pihak, nomor sengketa, dan nomor putusan adalah data contoh fiktif.

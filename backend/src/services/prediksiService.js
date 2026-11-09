@@ -164,21 +164,34 @@ async function jalankan(client, user, perkaraId) {
     `SELECT COUNT(*)::int AS n FROM kemiripan_putusan WHERE hasil_prediksi_id = $1`,
     [prediksiId],
   );
+  const kondisi = perkara.kondisi_analisis;
+  const sebagian = ['tanpa_informasi', 'tanpa_argumen', 'tanpa_dasar_hukum'].includes(kondisi)
+    || jumlahMirip.rows[0].n === 0;
+  const statusAnalisis = kondisi === 'gagal_sekali' ? 'Gagal' : sebagian ? 'Sebagian' : 'Tersedia';
   const analisis = await client.query(
-    `INSERT INTO analisis_perkara (hasil_prediksi_id, ringkasan)
-     VALUES ($1, $2) RETURNING id`,
-    [prediksiId, ringkasanAnalisis(amar.rows[0].nama, jumlahMirip.rows[0].n)],
+    `INSERT INTO analisis_perkara (hasil_prediksi_id, ringkasan, status, informasi_tersedia)
+     VALUES ($1, $2, $3, $4) RETURNING id`,
+    [
+      prediksiId,
+      ringkasanAnalisis(amar.rows[0].nama, jumlahMirip.rows[0].n),
+      statusAnalisis,
+      kondisi !== 'tanpa_informasi',
+    ],
   );
-  await client.query(
-    `INSERT INTO argumen (analisis_id, pihak, isi, urutan)
-     SELECT $1, pihak, isi, urutan FROM templat_argumen ORDER BY urutan`,
-    [analisis.rows[0].id],
-  );
-  await client.query(
-    `INSERT INTO analisis_dasar_hukum (analisis_id, dasar_hukum_id)
-     SELECT $1, id FROM dasar_hukum`,
-    [analisis.rows[0].id],
-  );
+  if (kondisi !== 'tanpa_argumen') {
+    await client.query(
+      `INSERT INTO argumen (analisis_id, pihak, isi, urutan)
+       SELECT $1, pihak, isi, urutan FROM templat_argumen ORDER BY urutan`,
+      [analisis.rows[0].id],
+    );
+  }
+  if (kondisi !== 'tanpa_dasar_hukum') {
+    await client.query(
+      `INSERT INTO analisis_dasar_hukum (analisis_id, dasar_hukum_id)
+       SELECT $1, id FROM dasar_hukum`,
+      [analisis.rows[0].id],
+    );
+  }
   await client.query(
     `INSERT INTO faktor_dominan (analisis_id, nama_faktor, kontribusi, urutan)
      SELECT $1, nama_faktor, kontribusi, urutan FROM templat_faktor ORDER BY urutan`,

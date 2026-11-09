@@ -20,10 +20,10 @@ const grup = [
     templat_faktor: ['PK id', 'nama_faktor', 'kontribusi'],
   }],
   ['sumber', '#0f6e6e', 'Data sumber Tax Court One (hanya baca)', {
-    perkara: ['PK id', 'UK nomor_sengketa', 'jenis_pajak', 'nilai_sengketa', 'status_ucap', 'FK majelis_id', 'FK panitera_id', 'FK hakim_id'],
+    perkara: ['PK id', 'UK nomor_sengketa', 'jenis_pajak', 'nilai_sengketa', 'status_ucap', 'kondisi_analisis', 'FK majelis_id', 'FK panitera_id', 'FK hakim_id'],
     pihak: ['PK id', 'FK perkara_id', 'peran_pihak', 'nama'],
     dokumen_perkara: ['PK id', 'FK perkara_id', 'jenis_dokumen', 'tersedia'],
-    putusan: ['PK id', 'UK nomor_putusan', 'amar', 'tahun'],
+    putusan: ['PK id', 'UK nomor_putusan', 'amar', 'tahun', 'dokumen_tersedia', 'ocr_berhasil'],
   }],
   ['prediksi', '#2b74b5', 'Prediksi putusan', {
     hasil_prediksi: ['PK id', 'UK kode', 'FK perkara_id', 'FK model_id', 'versi', 'status', 'FK amar_kategori_id', 'skor_keyakinan'],
@@ -34,7 +34,7 @@ const grup = [
     profil_kemiripan: ['PK id', 'FK perkara_id', 'FK putusan_id', 'persentase'],
   }],
   ['analisis', '#1b6b4a', 'Analisis dan perbandingan', {
-    analisis_perkara: ['PK id', 'FK hasil_prediksi_id', 'ringkasan', 'status'],
+    analisis_perkara: ['PK id', 'FK hasil_prediksi_id', 'ringkasan', 'status', 'informasi_tersedia'],
     argumen: ['PK id', 'FK analisis_id', 'pihak', 'isi'],
     analisis_dasar_hukum: ['PK id', 'FK analisis_id', 'FK dasar_hukum_id'],
     faktor_dominan: ['PK id', 'FK analisis_id', 'nama_faktor', 'kontribusi'],

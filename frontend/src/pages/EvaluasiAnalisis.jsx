@@ -22,7 +22,7 @@ export default function EvaluasiAnalisis() {
   const [alasan, setAlasan] = useState('');
   const [galat, setGalat] = useState('');
 
-  useEffect(() => { api(`/prediksi/${id}/analisis`).then(setData); }, [id]);
+  useEffect(() => { api(`/prediksi/${id}/analisis`).then(setData).catch((e) => setGalat(e.message)); }, [id]);
 
   async function simpan() {
     if (status === 'TIDAK PERLU') {
@@ -51,7 +51,7 @@ export default function EvaluasiAnalisis() {
           <div className="lbl">Ringkasan</div>
           <p style={{ margin: '4px 0 10px' }}>{data?.ringkasan}</p>
           <table><tbody>
-            <tr><td>Informasi perkara</td><td>{data?.perkara.jenisPajak}</td></tr>
+            <tr><td>Informasi perkara</td><td>{data ? data.perkara?.jenisPajak || 'Tidak ditemukan' : ''}</td></tr>
             <tr><td>Argumen relevan</td><td>{data?.argumen.length || 0} argumen</td></tr>
             <tr><td>Dasar hukum</td><td>{data?.dasarHukum.length || 0} ketentuan</td></tr>
             <tr><td>Putusan pembanding</td><td>{data?.putusanPembanding.length || 0} putusan</td></tr>
