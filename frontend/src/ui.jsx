@@ -82,9 +82,18 @@ export function Shell({ crumb, children }) {
   const { pathname } = useLocation();
   const [notif, setNotif] = useState({ belumDibaca: 0, daftar: [] });
   const [buka, setBuka] = useState(false);
+  const [menuBuka, setMenuBuka] = useState(() => window.matchMedia('(min-width: 1101px)').matches);
+
+  function pilihMenu(path) {
+    navigate(path);
+    if (window.matchMedia('(max-width: 1100px)').matches) setMenuBuka(false);
+  }
 
   useEffect(() => {
-    api('/notifikasi').then(setNotif).catch(() => {});
+    const muat = () => api('/notifikasi').then(setNotif).catch(() => {});
+    muat();
+    window.addEventListener('siproperti:notifikasi', muat);
+    return () => window.removeEventListener('siproperti:notifikasi', muat);
   }, [pathname]);
 
   async function baca(item) {
@@ -94,14 +103,15 @@ export function Shell({ crumb, children }) {
   }
 
   return (
-    <div className="wrap">
+    <div className={`wrap${menuBuka ? ' menu-buka' : ''}`}>
+      <button type="button" className="scrim" aria-label="Tutup menu" onClick={() => setMenuBuka(false)} />
       <aside className="side">
         <div className="brand"><span className="lg">TC</span>{user.aplikasi}</div>
         <div className="userp"><div className="av">{user.inisial}</div><div><b>{user.nama}</b><span>{user.jabatan}</span></div></div>
         <div className="mh">MENU UTAMA</div>
         <nav className="menu">
           {MENU[user.peran].map(([path, label, ikon, baru]) => (
-            <button key={path} className={menuAktif(path, pathname) ? 'on' : ''} onClick={() => navigate(path)}>
+            <button key={path} className={menuAktif(path, pathname) ? 'on' : ''} onClick={() => pilihMenu(path)}>
               <Icon name={ikon} />{label}{baru ? <span className="nw">baru</span> : null}
             </button>
           ))}
@@ -109,7 +119,7 @@ export function Shell({ crumb, children }) {
       </aside>
       <div className="main">
         <div className="nav">
-          <span className="ham">≡</span>
+          <button type="button" className="ham" aria-label="Menu navigasi" aria-expanded={menuBuka} onClick={() => setMenuBuka((v) => !v)}>≡</button>
           <div className="rt">
             <button className="bell" onClick={() => setBuka((v) => !v)} aria-label="Notifikasi">
               <Icon name="bell" size={18} />
@@ -152,6 +162,17 @@ export function Donut({ dist, size = 210 }) {
   const cx = size / 2;
   const cy = size / 2;
   const bagian = [];
+  const total = dist.reduce((s, v) => s + Math.max(v, 0), 0);
+  const penuh = dist.findIndex((v) => total > 0 && v / total >= 0.9999);
+  if (penuh >= 0) {
+    const cincin = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.01} ${cy - r} Z M ${cx} ${cy - ri} A ${ri} ${ri} 0 1 0 ${cx - 0.01} ${cy - ri} Z`;
+    return (
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <path d={cincin} fill={WARNA_AMAR[penuh]} fillRule="evenodd" stroke="#fff" strokeWidth="1.5" />
+        <text x={cx} y={cy - (r + ri) / 2} fontSize="10.5" textAnchor="middle" dominantBaseline="middle" fill="#333">100%</text>
+      </svg>
+    );
+  }
   dist.forEach((v, i) => {
     if (v <= 0) return;
     const akhir = sudut + v * 2 * Math.PI;

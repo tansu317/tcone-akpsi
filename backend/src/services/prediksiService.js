@@ -110,10 +110,14 @@ async function jalankan(client, user, perkaraId) {
   );
   const versi = versiRes.rows[0].versi;
   const kode = `PRD-${perkara.nomor_sengketa.slice(3, 6)}-v${versi}`;
+  const ml = await laporanModel(perkara.id);
+  if (!ml) throw bad('Korpus putusan historis belum cukup untuk model unsupervised.', 500);
   const model = await client.query(
-    `SELECT id, nama, versi FROM model_prediksi WHERE status = 'produksi' ORDER BY tanggal_promosi DESC LIMIT 1`,
+    `SELECT id FROM model_prediksi WHERE nama = $1 AND status = 'produksi'
+     ORDER BY tanggal_promosi DESC NULLS LAST LIMIT 1`,
+    [ml.terpilih.nama],
   );
-  if (!model.rows[0]) throw bad('Model prediksi produksi belum tersedia.', 500);
+  if (!model.rows[0]) throw bad(`Model ${ml.terpilih.nama} belum terdaftar sebagai model produksi.`, 500);
 
   await client.query(
     `UPDATE hasil_prediksi SET status = 'Digantikan'
@@ -129,8 +133,6 @@ async function jalankan(client, user, perkaraId) {
   );
   const prediksiId = prediksi.rows[0].id;
 
-  const ml = await laporanModel(perkara.id);
-  if (!ml) throw bad('Korpus putusan sejenis belum cukup untuk model unsupervised.', 500);
   const kategori = await client.query(`SELECT id, nama FROM kategori_amar`);
   const idAmar = new Map(kategori.rows.map((r) => [r.nama, r.id]));
   if (!idAmar.has(ml.terpilih.amar)) throw bad('Amar hasil model tidak dikenali.', 500);
@@ -220,10 +222,13 @@ export async function ambilPrediksi(id) {
             u.nama AS pembuat, u.jabatan AS jabatan_pembuat,
             p.id AS perkara_id, p.nomor_sengketa, p.nama_pemohon, p.jenis_pajak,
             p.jenis_sengketa, p.pokok_sengketa, p.nilai_sengketa, p.masa_pajak,
-            p.profil_kemiripan, mj.kode AS majelis
+            p.profil_kemiripan, p.tanggal_masuk, p.nomor_objek_gugatan, p.tanggal_objek_gugatan,
+            mj.kode AS majelis, pan.nama AS panitera,
+            (SELECT nama FROM pihak WHERE perkara_id = p.id AND peran_pihak = 'Tergugat' LIMIT 1) AS tergugat
      FROM hasil_prediksi hp
      JOIN perkara p ON p.id = hp.perkara_id
      JOIN majelis mj ON mj.id = p.majelis_id
+     JOIN pengguna pan ON pan.id = p.panitera_id
      JOIN model_prediksi m ON m.id = hp.model_id
      JOIN pengguna u ON u.id = hp.dibuat_oleh
      LEFT JOIN kategori_amar ka ON ka.id = hp.amar_kategori_id
@@ -280,6 +285,11 @@ export async function ambilPrediksi(id) {
       nilaiSengketa: angka(baris.nilai_sengketa),
       masaPajak: baris.masa_pajak,
       majelis: baris.majelis,
+      panitera: baris.panitera,
+      tergugat: baris.tergugat,
+      tanggalMasuk: baris.tanggal_masuk,
+      nomorObjekGugatan: baris.nomor_objek_gugatan,
+      tanggalObjekGugatan: baris.tanggal_objek_gugatan,
     },
   };
 }

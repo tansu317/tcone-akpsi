@@ -1,5 +1,6 @@
 import { pool, query } from '../db.js';
 import { catat } from '../lib/audit.js';
+import { statusAwalLaporan, transisiLaporanDisparitas } from '../domain.js';
 import { angka, bad } from '../lib/errors.js';
 
 async function parameterAktif() {
@@ -155,7 +156,7 @@ export async function simpanDeteksi(user, perkaraId) {
 
     const param = await parameterAktif();
     const kode = await client.query(`SELECT 'LDP-' || lpad(nextval('laporan_disparitas_seq')::text, 3, '0') AS kode`);
-    const status = hasil.adaIndikasi ? 'Menunggu Peninjauan' : 'Tidak Ada Indikasi';
+    const status = statusAwalLaporan(hasil.adaIndikasi);
     const laporan = await client.query(
       `INSERT INTO laporan_disparitas (
          kode, perkara_id, parameter_id, amar_draf, jumlah_sejenis, jumlah_selaras,
@@ -279,14 +280,8 @@ export async function detailLaporan(id) {
 export async function ubahStatusLaporan(user, id, status, catatan) {
   const sekarang = await query(`SELECT kode, status FROM laporan_disparitas WHERE id = $1`, [id]);
   if (!sekarang.rows[0]) throw bad('Laporan tidak ditemukan.', 404);
-  const dari = sekarang.rows[0].status;
-  const boleh =
-    (dari === 'Menunggu Peninjauan' && (status === 'Terkonfirmasi' || status === 'Diabaikan'))
-    || (dari === 'Terkonfirmasi' && status === 'Ditindaklanjuti');
-  if (!boleh) throw bad('Perubahan status laporan tidak sesuai alur peninjauan.', 409);
-  if (status === 'Ditindaklanjuti' && !String(catatan || '').trim()) {
-    throw bad('Catatan tindak lanjut wajib diisi.');
-  }
+  const galatTransisi = transisiLaporanDisparitas(sekarang.rows[0].status, status, catatan);
+  if (galatTransisi) throw bad(galatTransisi.pesan, galatTransisi.status);
   await query(
     `UPDATE laporan_disparitas
      SET status = $2, catatan_tindak_lanjut = COALESCE($3, catatan_tindak_lanjut)

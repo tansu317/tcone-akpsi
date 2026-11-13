@@ -75,7 +75,7 @@ Semua use scenario pada `prototipe/SIPROPERTI_Alur_Real_Use_Case_Figma/2_Alur_pe
 | US-04.3 Dokumen putusan gagal dimuat | Lihat & Bandingkan PUT-016003 (kembali ke daftar dengan peringatan) |
 | US-04.4 OCR gagal | Lihat & Bandingkan PUT-007712 (dokumen tanpa sorotan) |
 | US-05.1 sampai US-05.4 | Evaluasi Hasil Prediksi: Terima, Koreksi (amar + koreksi wajib), Tolak (alasan wajib), Tandai |
-| US-06.1 sampai US-06.4 | Evaluasi Hasil Analisis: Setuju, Tidak Setuju (alasan wajib), Tidak perlu, atau simpan tanpa nilai lengkap |
+| US-06.1 sampai US-06.4 | Evaluasi Hasil Analisis: Setuju, Tidak Setuju (alasan wajib), Kembali tanpa menyimpan, atau simpan tanpa nilai lengkap |
 | US-07.1 sampai US-07.4 | ChatAI: jenis pertanyaan S-1 sampai S-4 |
 | US-07.5 / US-07.6 Rujukan tidak ditemukan | Kirim pertanyaan berisi `cuaca`, `olahraga`, atau `resep`, lalu susun ulang atau Akhiri Percakapan |
 | US-08.1 / US-08.2 Feedback | Beri Feedback: Sesuai, atau Belum sesuai dengan kategori |

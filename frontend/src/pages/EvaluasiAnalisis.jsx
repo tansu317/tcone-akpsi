@@ -7,7 +7,6 @@ import { useToast, Disc, Shell } from '../ui.jsx';
 const OPSI = [
   ['SETUJU', 'Setuju dengan hasil analisis', 'S-1 – Analisis relevan dan sesuai dengan perkara.'],
   ['TIDAK SETUJU', 'Tidak setuju dengan hasil analisis', 'S-2 – Ada komponen yang tidak relevan atau keliru.'],
-  ['TIDAK PERLU', 'Tidak perlu menuliskan evaluasi', 'Proses selesai tanpa menyimpan evaluasi.'],
 ];
 
 export default function EvaluasiAnalisis() {
@@ -25,11 +24,6 @@ export default function EvaluasiAnalisis() {
   useEffect(() => { api(`/prediksi/${id}/analisis`).then(setData).catch((e) => setGalat(e.message)); }, [id]);
 
   async function simpan() {
-    if (status === 'TIDAK PERLU') {
-      toast('Proses evaluasi hasil analisis selesai tanpa catatan');
-      navigate(`/evaluasi/${id}`);
-      return;
-    }
     setGalat('');
     try {
       await api('/evaluasi/analisis', {
@@ -66,7 +60,7 @@ export default function EvaluasiAnalisis() {
                 <span><b>{judul}</b><small>{teks}</small></span>
               </label>
             ))}</div>
-            {status && status !== 'TIDAK PERLU' ? <>
+            {status ? <>
               <div>
                 <div className="lbl" style={{ marginBottom: 6 }}>Nilai relevansi tiap komponen (1–5) <span className="req">*</span></div>
                 {komponen.map((nama, i) => (
@@ -84,7 +78,7 @@ export default function EvaluasiAnalisis() {
             </> : null}
             {galat ? <div className="err">{galat}</div> : null}
             <div className="btns">
-              <button className="btn bp" disabled={!status} onClick={simpan}>{status === 'TIDAK PERLU' ? 'Selesai' : 'Simpan Evaluasi Analisis'}</button>
+              <button className="btn bp" disabled={!status} onClick={simpan}>Simpan Evaluasi Analisis</button>
               <button className="btn" onClick={() => navigate(`/evaluasi/${id}`)}>Kembali</button>
             </div>
           </div>

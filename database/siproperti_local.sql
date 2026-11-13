@@ -129,6 +129,8 @@ CREATE TABLE perkara (
     CHECK (kondisi_analisis IN (
       'lengkap', 'tanpa_informasi', 'tanpa_argumen', 'tanpa_dasar_hukum', 'gagal_sekali'
     )),
+  nomor_objek_gugatan varchar(80),
+  tanggal_objek_gugatan date,
   fakta text,
   dalil text,
   bukti_kunci text
@@ -166,6 +168,20 @@ CREATE TABLE putusan (
   amar_teks text NOT NULL,
   dokumen_tersedia boolean NOT NULL DEFAULT true,
   ocr_berhasil boolean NOT NULL DEFAULT true
+);
+
+CREATE TABLE korpus_putusan (
+  id serial PRIMARY KEY,
+  nomor_putusan varchar(80) NOT NULL UNIQUE,
+  tahun smallint NOT NULL,
+  jenis_pajak varchar(40) NOT NULL,
+  kategori_objek varchar(30) NOT NULL
+    CHECK (kategori_objek IN (
+      'surat_paksa', 'penyitaan', 'lelang', 'teguran', 'sanksi', 'pabean', 'pembetulan'
+    )),
+  pokok_sengketa text NOT NULL,
+  nilai_sengketa numeric(18,2) NOT NULL,
+  amar varchar(80) NOT NULL
 );
 
 -- -----------------------------------------------------------------------------
@@ -560,9 +576,9 @@ INSERT INTO kategori_amar (id, nama, urutan) VALUES
   (7, 'Menambah Pajak Yang Harus Dibayar', 7);
 
 INSERT INTO model_prediksi (id, nama, versi, status, deskripsi, tanggal_promosi) VALUES
-  ('33333333-0000-4000-8000-000000000001', 'AmarClassifier', '2.3', 'produksi', 'Model klasifikasi amar yang dipakai prediksi berjalan.', DATE '2025-08-01'),
-  ('33333333-0000-4000-8000-000000000002', 'AmarClassifier', '2.4-rc', 'staging', 'Kandidat promosi, belum dipakai perkara produksi.', DATE '2025-09-15'),
-  ('33333333-0000-4000-8000-000000000003', 'AmarClassifier', '2.5-dev', 'dev', 'Pelatihan ulang di lingkungan pengembangan.', NULL);
+  ('33333333-0000-4000-8000-000000000001', 'K-Means', '1.0', 'produksi', 'Klasterisasi K-Means++ pada korpus putusan historis; amar klaster dari mayoritas anggota.', DATE '2025-08-01'),
+  ('33333333-0000-4000-8000-000000000002', 'Gaussian Mixture Model', '1.0', 'produksi', 'GMM kovarians diagonal (EM); keanggotaan lunak per komponen.', DATE '2025-08-01'),
+  ('33333333-0000-4000-8000-000000000003', 'Agglomerative Clustering', '1.0', 'produksi', 'Klasterisasi hierarkis average linkage.', DATE '2025-08-01');
 
 INSERT INTO dasar_hukum (id, judul, isi) VALUES
   ('44444444-0000-4000-8000-000000000001', 'UU KUP Pasal 36 ayat (1) huruf a', 'Pengurangan atau penghapusan sanksi administrasi yang dikenakan karena khilaf atau bukan karena kesalahan Wajib Pajak.'),
@@ -614,10 +630,35 @@ UPDATE perkara SET kondisi_analisis = 'tanpa_argumen' WHERE nomor_sengketa = '00
 UPDATE perkara SET kondisi_analisis = 'tanpa_dasar_hukum' WHERE nomor_sengketa = '000548162025';
 UPDATE perkara SET kondisi_analisis = 'tanpa_informasi' WHERE nomor_sengketa = '000561162025';
 
+UPDATE perkara p SET
+  nomor_objek_gugatan = o.nomor,
+  tanggal_objek_gugatan = o.tanggal
+FROM (VALUES
+  ('000412162025', 'SP-00218/WPJ.04/KP.0303/2024', DATE '2024-12-09'),
+  ('000437162025', 'KEP-00731/WPJ.07/2024', DATE '2024-12-20'),
+  ('000451162025', 'SPTNP-001452/KPU.01/2025', DATE '2025-01-27'),
+  ('000468162025', 'BAPS-00094/WPJ.19/KP.0203/2025', DATE '2025-02-10'),
+  ('000489162025', 'PENG-00017/WPJ.26/KP.0403/2025', DATE '2025-03-12'),
+  ('000502162025', 'ST-01288/WPJ.06/KP.0103/2025', DATE '2025-03-24'),
+  ('000517162025', 'KEP-00402/KPU.03/2025', DATE '2025-04-03'),
+  ('000533162025', 'SP-00341/WPJ.09/KP.0503/2025', DATE '2025-04-08'),
+  ('000548162025', 'KEP-00915/WPJ.08/2025', DATE '2025-04-21'),
+  ('000561162025', 'KEP-00133/BC.08/2025', DATE '2025-04-29'),
+  ('000389152025', 'SPTNP-000981/KPU.02/2024', DATE '2024-12-02'),
+  ('000377152025', 'SP-00177/WPJ.05/KP.0703/2024', DATE '2024-11-25'),
+  ('000365152025', 'KEP-00620/WPJ.11/2024', DATE '2024-11-11'),
+  ('000351152025', 'SPTNP-000844/KPU.01/2024', DATE '2024-11-04')
+) AS o(nomor_sengketa, nomor, tanggal)
+WHERE p.nomor_sengketa = o.nomor_sengketa;
+
 INSERT INTO pihak (perkara_id, peran_pihak, nama, nama_anonim)
 SELECT id, 'Penggugat', nama_pemohon, 'PIHAK-01' FROM perkara
 UNION ALL
-SELECT id, 'Tergugat', 'Direktur Jenderal Pajak', 'Direktur Jenderal Pajak' FROM perkara;
+SELECT id, 'Tergugat', t.nama, t.nama
+FROM perkara
+CROSS JOIN LATERAL (
+  SELECT CASE WHEN jenis_pajak = 'Pabean' THEN 'Direktur Jenderal Bea dan Cukai' ELSE 'Direktur Jenderal Pajak' END AS nama
+) t;
 
 INSERT INTO dokumen_perkara (perkara_id, jenis_dokumen, urutan, tersedia)
 SELECT p.id, d.jenis, d.urutan,
@@ -693,6 +734,42 @@ INSERT INTO putusan (
 
 UPDATE putusan SET ocr_berhasil = false WHERE urutan = 4;
 UPDATE putusan SET dokumen_tersedia = false WHERE urutan = 5;
+
+-- Korpus putusan gugatan historis (fiktif) untuk melatih model unsupervised.
+-- Bobot amar per kategori objek gugatan berurutan sesuai kategori_amar.urutan dan berjumlah 100.
+INSERT INTO korpus_putusan (nomor_putusan, tahun, jenis_pajak, kategori_objek, pokok_sengketa, nilai_sengketa, amar)
+WITH kategori(urut, kode, pokok, bobot, pajak) AS (VALUES
+  (1, 'surat_paksa', 'Gugatan atas pelaksanaan Surat Paksa', ARRAY[8, 14, 52, 16, 6, 3, 1], ARRAY['PPN', 'PPh Pasal 23', 'PPh Badan']),
+  (2, 'penyitaan', 'Gugatan atas pelaksanaan penyitaan', ARRAY[12, 44, 26, 10, 5, 2, 1], ARRAY['PPh Pasal 23', 'PPh Badan', 'PPN']),
+  (3, 'lelang', 'Gugatan atas pengumuman lelang barang sitaan', ARRAY[6, 10, 24, 50, 6, 3, 1], ARRAY['PPh Badan', 'PPN', 'PPh Pasal 23']),
+  (4, 'teguran', 'Gugatan atas Surat Teguran', ARRAY[4, 8, 22, 58, 4, 3, 1], ARRAY['PPN', 'PPh Badan', 'PPh Pasal 23']),
+  (5, 'sanksi', 'Gugatan atas penolakan pengurangan atau penghapusan sanksi administrasi', ARRAY[14, 50, 22, 7, 3, 3, 1], ARRAY['PPN', 'PPN', 'PPh Badan']),
+  (6, 'pabean', 'Gugatan atas penetapan tarif dan/atau nilai pabean', ARRAY[46, 18, 22, 7, 4, 2, 1], ARRAY['Pabean', 'Pabean', 'Pabean']),
+  (7, 'pembetulan', 'Gugatan atas keputusan pembetulan', ARRAY[18, 22, 20, 8, 28, 3, 1], ARRAY['PPN', 'Pabean', 'PPh Badan'])
+),
+baris AS (
+  SELECT g, k.*,
+    (abs(hashtext('amar-' || g)) % 10000) / 100.0 AS r,
+    k.pajak[1 + abs(hashtext('pajak-' || g)) % 3] AS jenis
+  FROM generate_series(1, 630) AS g
+  JOIN kategori k ON k.urut = 1 + (g - 1) % 7
+)
+SELECT
+  format('PUT-%s.%s/%s/PP/M.%s Tahun %s',
+    lpad((100000 + g * 37)::text, 6, '0'), CASE WHEN jenis = 'Pabean' THEN '19' ELSE '16' END,
+    2019 + g % 6, (ARRAY['IA', 'IIB', 'IIIA', 'IVB', 'VA', 'VIB', 'VIIA', 'VIIIB', 'XIA', 'XIIA'])[1 + g % 10],
+    2019 + g % 6),
+  2019 + g % 6,
+  jenis,
+  kode,
+  pokok,
+  (25 + abs(hashtext('nilai-' || g)) % 1500) * 1000000,
+  (SELECT ka.nama FROM kategori_amar ka
+   WHERE ka.urutan = (
+     SELECT min(i) FROM generate_subscripts(bobot, 1) AS i
+     WHERE (SELECT sum(bobot[j]) FROM generate_series(1, i) AS j) > r
+   ))
+FROM baris;
 
 INSERT INTO templat_argumen (pihak, isi, urutan) VALUES
   ('Penggugat', 'Keterlambatan penyetoran PPN masa Desember 2021 terjadi karena gangguan sistem e-Billing (bukti: tiket layanan).', 1),

@@ -3,7 +3,10 @@ import { query } from '../db.js';
 import { catat } from '../lib/audit.js';
 import { angka, bad, uuid } from '../lib/errors.js';
 import { peran, wajibMasuk } from '../middleware/auth.js';
-import { KOMPONEN_ANALISIS, LANGKAH_PREDIKSI } from '../domain.js';
+import {
+  KOMPONEN_ANALISIS, LANGKAH_PREDIKSI, statusPrediksiSetelahEvaluasi,
+  validasiEvaluasiAnalisis, validasiEvaluasiPrediksi,
+} from '../domain.js';
 import {
   akhiriSesi,
   ambilSesi,
@@ -152,14 +155,8 @@ evaluasi.post('/prediksi', async (req, res) => {
   const prediksiId = uuid(req.body?.prediksiId, 'Prediksi');
   const status = req.body?.status;
   const keterangan = String(req.body?.keterangan || '');
-  if (!['DITERIMA', 'DIKOREKSI', 'DITOLAK', 'DITANDAI'].includes(status)) {
-    throw bad('Pilih hasil evaluasi terlebih dahulu.');
-  }
-  if ((status === 'DIKOREKSI' || status === 'DITOLAK') && !keterangan.trim()) {
-    throw bad(status === 'DITOLAK'
-      ? 'Alasan penolakan wajib diisi sebelum evaluasi disimpan.'
-      : 'Koreksi wajib diisi sebelum evaluasi disimpan.');
-  }
+  const galatEvaluasi = validasiEvaluasiPrediksi(status, keterangan);
+  if (galatEvaluasi) throw bad(galatEvaluasi);
   const prediksi = await query(`SELECT kode, status FROM hasil_prediksi WHERE id = $1`, [prediksiId]);
   if (!prediksi.rows[0]) throw bad('Prediksi tidak ditemukan.', 404);
   const simpan = await query(
@@ -169,7 +166,7 @@ evaluasi.post('/prediksi', async (req, res) => {
      RETURNING id, status, keterangan, amar_koreksi, dibuat_pada`,
     [prediksiId, req.user.id, status, req.body?.amarKoreksi || null, req.body?.bagianDikoreksi || null, keterangan],
   );
-  if (prediksi.rows[0].status === 'Aktif') {
+  if (statusPrediksiSetelahEvaluasi(prediksi.rows[0].status) === 'Dievaluasi' && prediksi.rows[0].status === 'Aktif') {
     await query(`UPDATE hasil_prediksi SET status = 'Dievaluasi' WHERE id = $1`, [prediksiId]);
   }
   await catat(req.user, `Evaluasi hasil prediksi: ${status}`, prediksi.rows[0].kode);
@@ -184,10 +181,8 @@ evaluasi.post('/analisis', async (req, res) => {
   const status = req.body?.status;
   const nilai = req.body?.nilai || [];
   const alasan = String(req.body?.alasan || '');
-  if (!['SETUJU', 'TIDAK SETUJU'].includes(status)) throw bad('Pilih hasil evaluasi analisis.');
-  const kosong = KOMPONEN_ANALISIS.filter((_, i) => !nilai[i]);
-  if (kosong.length) throw bad(`Evaluasi belum lengkap: ${kosong.length} komponen belum diberi nilai.`);
-  if (status === 'TIDAK SETUJU' && !alasan.trim()) throw bad('Alasan ketidaksetujuan wajib diisi.');
+  const galatAnalisis = validasiEvaluasiAnalisis(status, nilai, alasan);
+  if (galatAnalisis) throw bad(galatAnalisis);
   const analisis = await query(`SELECT id FROM analisis_perkara WHERE hasil_prediksi_id = $1`, [prediksiId]);
   if (!analisis.rows[0]) throw bad('Analisis perkara belum tersedia.', 404);
   const prediksi = await query(`SELECT kode FROM hasil_prediksi WHERE id = $1`, [prediksiId]);

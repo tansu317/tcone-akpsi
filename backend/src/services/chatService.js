@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import { catat } from '../lib/audit.js';
+import { sesiMenerimaPesan, validasiFeedback } from '../domain.js';
 import { angka, bad } from '../lib/errors.js';
 
 const TANPA_RUJUKAN = /cuaca|olahraga|resep/i;
@@ -64,6 +65,15 @@ export async function ambilSesi(id) {
     [id],
   );
   if (!sesi.rows[0]) return null;
+  const ekstra = await query(
+    `SELECT
+       (SELECT COUNT(*)::int FROM faktor_dominan f
+        JOIN analisis_perkara a ON a.id = f.analisis_id
+        WHERE a.hasil_prediksi_id = $1) AS faktor,
+       (SELECT COUNT(*)::int FROM kemiripan_putusan k
+        WHERE k.hasil_prediksi_id = $1) AS sejenis`,
+    [sesi.rows[0].hasil_prediksi_id],
+  );
   const pesan = await query(
     `SELECT m.id, m.peran, m.jenis_pertanyaan, m.isi, m.tanpa_rujukan, m.urutan,
             COALESCE(json_agg(json_build_object('label', r.label, 'terverifikasi', r.terverifikasi) ORDER BY r.urutan)
@@ -109,7 +119,8 @@ export async function kirimPesan(user, sesiId, jenis, isi) {
   const pola = templat.rows[0];
 
   const pertanyaan = (isi || '').trim() || pola.pertanyaan_contoh;
-  const urutan = await query(
+  const sesiTutup = sesiMenerimaPesan(sesi.rows[0].status);
+  if (sesiTutup) throw bad(sesiTutup);
     `SELECT COALESCE(MAX(urutan), 0) + 1 AS n FROM pesan_ai WHERE percakapan_id = $1`,
     [sesiId],
   );
@@ -182,9 +193,8 @@ export async function simpanFeedback(user, body) {
     throw bad('Feedback belum lengkap. Pilih jenis feedback dan beri rating sebelum mengirim.');
   }
   const prediksi = await query(`SELECT kode FROM hasil_prediksi WHERE id = $1`, [prediksiId]);
-  if (!prediksi.rows[0]) throw bad('Prediksi tidak ditemukan.', 404);
-  const hasil = await query(
-    `INSERT INTO feedback
+  const galatUmpan = validasiFeedback(jenis, rating);
+  if (galatUmpan) throw bad(galatUmpan);
       (hasil_prediksi_id, percakapan_id, pengguna_id, jenis, rating, kategori, penjelasan)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id, jenis, rating, status_tindak_lanjut, dibuat_pada`,
