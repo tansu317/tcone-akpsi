@@ -92,7 +92,11 @@ export async function ambilSesi(id) {
     mulaiPada: sesi.rows[0].mulai_pada,
     prediksiId: sesi.rows[0].hasil_prediksi_id,
     jumlahPesan: sesi.rows[0].jumlah_pesan,
-    konteks: sesi.rows[0].konteks_anonim,
+    konteks: {
+      ...sesi.rows[0].konteks_anonim,
+      faktorDominan: ekstra.rows[0].faktor,
+      putusanSejenis: ekstra.rows[0].sejenis,
+    },
     pesan: pesan.rows.map((m) => ({
       id: m.id,
       peran: m.peran,
@@ -115,12 +119,12 @@ export async function kirimPesan(user, sesiId, jenis, isi) {
     [sesiId, user.id],
   );
   if (!sesi.rows[0]) throw bad('Sesi ChatAI tidak ditemukan.', 404);
-  if (sesi.rows[0].status !== 'Aktif') throw bad('Sesi sudah diakhiri.');
+  const sesiTutup = sesiMenerimaPesan(sesi.rows[0].status);
+  if (sesiTutup) throw bad(sesiTutup);
   const pola = templat.rows[0];
 
   const pertanyaan = (isi || '').trim() || pola.pertanyaan_contoh;
-  const sesiTutup = sesiMenerimaPesan(sesi.rows[0].status);
-  if (sesiTutup) throw bad(sesiTutup);
+  const urutan = await query(
     `SELECT COALESCE(MAX(urutan), 0) + 1 AS n FROM pesan_ai WHERE percakapan_id = $1`,
     [sesiId],
   );
@@ -195,6 +199,9 @@ export async function simpanFeedback(user, body) {
   const prediksi = await query(`SELECT kode FROM hasil_prediksi WHERE id = $1`, [prediksiId]);
   const galatUmpan = validasiFeedback(jenis, rating);
   if (galatUmpan) throw bad(galatUmpan);
+  if (!prediksi.rows[0]) throw bad('Prediksi tidak ditemukan.', 404);
+  const hasil = await query(
+    `INSERT INTO feedback
       (hasil_prediksi_id, percakapan_id, pengguna_id, jenis, rating, kategori, penjelasan)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id, jenis, rating, status_tindak_lanjut, dibuat_pada`,
