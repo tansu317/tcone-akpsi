@@ -1,13 +1,13 @@
 import { query } from '../db.js';
 import { catat } from '../lib/audit.js';
-import { sesiMenerimaPesan, validasiFeedback } from '../domain.js';
+import { anonimkanKonteks, sesiMenerimaPesan, validasiFeedback, verifikasiRujukan } from '../domain.js';
 import { angka, bad } from '../lib/errors.js';
 
 const TANPA_RUJUKAN = /cuaca|olahraga|resep/i;
 
 export async function bukaSesi(user, prediksiId) {
   const prediksi = await query(
-    `SELECT hp.id, hp.kode, ka.nama AS amar, hp.skor_keyakinan, p.jenis_pajak
+    `SELECT hp.id, hp.kode, ka.nama AS amar, hp.skor_keyakinan, p.jenis_pajak, p.nama_pemohon
      FROM hasil_prediksi hp
      JOIN perkara p ON p.id = hp.perkara_id
      LEFT JOIN kategori_amar ka ON ka.id = hp.amar_kategori_id
@@ -31,8 +31,9 @@ export async function bukaSesi(user, prediksiId) {
     return ambilSesi(ada.rows[0].id);
   }
 
+  const namaPemohon = prediksi.rows[0].nama_pemohon || '';
   const konteks = {
-    penggugat: '[PIHAK-01]',
+    penggugat: anonimkanKonteks(namaPemohon, [namaPemohon]) || '[PIHAK-01]',
     tergugat: 'Direktur Jenderal Pajak',
     jenisPajak: prediksi.rows[0].jenis_pajak,
     amarPrediksi: prediksi.rows[0].amar,
@@ -135,9 +136,19 @@ export async function kirimPesan(user, sesiId, jenis, isi) {
     [sesiId, jenis, pertanyaan, n],
   );
 
-  const tanpa = TANPA_RUJUKAN.test(pertanyaan);
+  const tanpaKata = TANPA_RUJUKAN.test(pertanyaan);
+  const rujukanMentah = tanpaKata ? [] : (pola.rujukan || []);
+  const idDiKorpus = rujukanMentah.filter((r) => r.terverifikasi).map((r) => r.label);
+  const hasilRujukan = verifikasiRujukan({
+    jawaban: pola.jawaban,
+    rujukan: rujukanMentah,
+    idDiKorpus,
+    teksSumber: pola.jawaban,
+  });
+  const tanpa = tanpaKata || !hasilRujukan.tampilkanJawaban;
   const jawaban = tanpa
-    ? 'Informasi yang mendukung jawaban tidak tersedia pada dokumen perkara, korpus putusan, maupun basis peraturan. Sistem tidak menampilkan jawaban yang tidak didukung sumber.'
+    ? (hasilRujukan.pesan
+      || 'Informasi yang mendukung jawaban tidak tersedia pada dokumen perkara, korpus putusan, maupun basis peraturan. Sistem tidak menampilkan jawaban yang tidak didukung sumber.')
     : pola.jawaban;
   n += 1;
   const asisten = await query(
@@ -146,7 +157,7 @@ export async function kirimPesan(user, sesiId, jenis, isi) {
     [sesiId, jenis, jawaban, tanpa, n],
   );
   if (!tanpa) {
-    const rujukan = pola.rujukan || [];
+    const rujukan = hasilRujukan.rujukan || [];
     for (let i = 0; i < rujukan.length; i += 1) {
       await query(
         `INSERT INTO referensi_sumber (pesan_id, label, terverifikasi, urutan)

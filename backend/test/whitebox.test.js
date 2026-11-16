@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  anonimkanKonteks,
+  otorisasiAksesPerkara,
   sesiMenerimaPesan,
   statusAwalLaporan,
   statusPrediksiSetelahEvaluasi,
+  tolakUbahAudit,
   transisiLaporanDisparitas,
   validasiEvaluasiAnalisis,
   validasiEvaluasiPrediksi,
   validasiFeedback,
+  verifikasiRujukan,
 } from '../src/domain.js';
 import { uuid } from '../src/lib/errors.js';
 
@@ -120,5 +124,152 @@ describe('identitas', () => {
   });
   it('WB-ID-02 UUID rusak ditolak', () => {
     assert.throws(() => uuid('bukan-uuid', 'Prediksi'), /Prediksi tidak valid/);
+  });
+});
+
+describe('otorisasi akses perkara', () => {
+  const perkara = {
+    paniteraId: 'pan-1',
+    hakimId: 'hak-1',
+    anggotaMajelisIds: ['pan-1', 'hak-1', 'hak-2'],
+  };
+
+  it('WB-OA-01 sesi tidak valid ditolak 401', () => {
+    const hasil = otorisasiAksesPerkara(false, { id: 'hak-1', peran: 'Hakim' }, perkara, 'detail');
+    assert.equal(hasil.status, 401);
+    assert.match(hasil.pesan, /Sesi tidak valid/);
+    assert.equal(hasil.catatAudit, false);
+  });
+
+  it('WB-OA-02 Panitera bukan anggota majelis ditolak 403 dan diaudit', () => {
+    const hasil = otorisasiAksesPerkara(true, { id: 'pan-asing', peran: 'Panitera' }, perkara, 'detail');
+    assert.equal(hasil.status, 403);
+    assert.match(hasil.pesan, /bukan anggota majelis/);
+    assert.equal(hasil.catatAudit, true);
+  });
+
+  it('WB-OA-03 Hakim anggota majelis diizinkan', () => {
+    assert.equal(otorisasiAksesPerkara(true, { id: 'hak-1', peran: 'Hakim' }, perkara, 'detail'), null);
+  });
+
+  it('WB-OA-04 Pimpinan mengakses data detail ditolak 403 dan diaudit', () => {
+    const hasil = otorisasiAksesPerkara(true, { id: 'pim-1', peran: 'Pimpinan' }, perkara, 'detail');
+    assert.equal(hasil.status, 403);
+    assert.match(hasil.pesan, /putusan final atau data agregat/);
+    assert.equal(hasil.catatAudit, true);
+  });
+
+  it('WB-OA-05 Pimpinan mengakses data agregat diizinkan', () => {
+    assert.equal(
+      otorisasiAksesPerkara(true, { id: 'pim-1', peran: 'Pimpinan' }, perkara, 'agregat'),
+      null,
+    );
+  });
+
+  it('WB-OA-06 Pimpinan mengakses putusan final diizinkan', () => {
+    assert.equal(
+      otorisasiAksesPerkara(true, { id: 'pim-1', peran: 'Pimpinan' }, perkara, 'putusan_final'),
+      null,
+    );
+  });
+
+  it('WB-OA-07 peran di luar kamus ditolak 403 dan diaudit', () => {
+    const hasil = otorisasiAksesPerkara(true, { id: 'x-1', peran: 'Admin' }, perkara, 'detail');
+    assert.equal(hasil.status, 403);
+    assert.match(hasil.pesan, /tidak berwenang/);
+    assert.equal(hasil.catatAudit, true);
+  });
+});
+
+describe('anonimisasi konteks', () => {
+  it('WB-AK-01 nama pihak diganti token PIHAK', () => {
+    const hasil = anonimkanKonteks(
+      'Permohonan diajukan oleh PT Sumber Makmur terhadap DJP.',
+      ['PT Sumber Makmur'],
+    );
+    assert.match(hasil, /\[PIHAK-01\]/);
+    assert.equal(hasil.includes('PT Sumber Makmur'), false);
+  });
+
+  it('WB-AK-02 pola NPWP diganti token NPWP', () => {
+    const hasil = anonimkanKonteks('NPWP wajib pajak 01.234.567.8-901.000 tercatat.', []);
+    assert.match(hasil, /\[NPWP\]/);
+    assert.equal(hasil.includes('01.234.567.8-901.000'), false);
+  });
+
+  it('WB-AK-03 nama dan NPWP diganti bersamaan', () => {
+    const hasil = anonimkanKonteks(
+      'CV Angkasa Jaya dengan NPWP 10.987.654.3-210.000',
+      ['CV Angkasa Jaya'],
+    );
+    assert.match(hasil, /\[PIHAK-01\]/);
+    assert.match(hasil, /\[NPWP\]/);
+  });
+});
+
+describe('verifikasi rujukan', () => {
+  it('WB-VR-01 ID rujukan tidak ada di korpus dilabeli Tidak ditemukan', () => {
+    const hasil = verifikasiRujukan({
+      jawaban: 'Dasar hukum Pasal 36.',
+      rujukan: [{ label: 'UU-TIDAK-ADA', kutipan: 'Pasal 36' }],
+      idDiKorpus: ['UU KUP Pasal 36'],
+      teksSumber: 'Pasal 36 ayat (1)',
+    });
+    assert.equal(hasil.rujukan[0].labelStatus, 'Tidak ditemukan');
+    assert.equal(hasil.rujukan[0].terverifikasi, false);
+  });
+
+  it('WB-VR-02 kutipan tidak ada di sumber dilabeli Tidak mendukung klaim', () => {
+    const hasil = verifikasiRujukan({
+      jawaban: 'Klaim tidak didukung.',
+      rujukan: [{ label: 'PUT-012345', kutipan: 'teks yang tidak ada' }],
+      idDiKorpus: ['PUT-012345'],
+      teksSumber: 'Isi putusan pembanding yang berbeda.',
+    });
+    assert.equal(hasil.rujukan[0].labelStatus, 'Tidak mendukung klaim');
+    assert.equal(hasil.rujukan[0].terverifikasi, false);
+  });
+
+  it('WB-VR-03 tanpa rujukan terverifikasi jawaban tidak ditampilkan', () => {
+    const hasil = verifikasiRujukan({
+      jawaban: 'Jawaban spekulatif.',
+      rujukan: [{ label: 'SUMBER-X' }],
+      idDiKorpus: [],
+      teksSumber: '',
+    });
+    assert.equal(hasil.tampilkanJawaban, false);
+    assert.match(hasil.pesan, /Susun ulang pertanyaan/);
+  });
+
+  it('WB-VR-04 rujukan terverifikasi jawaban ditampilkan', () => {
+    const hasil = verifikasiRujukan({
+      jawaban: 'Putusan didukung Pasal 36.',
+      rujukan: [{ label: 'UU KUP Pasal 36', kutipan: 'Pasal 36' }],
+      idDiKorpus: ['UU KUP Pasal 36'],
+      teksSumber: 'Bunyi Pasal 36 ayat (1) huruf a.',
+    });
+    assert.equal(hasil.tampilkanJawaban, true);
+    assert.equal(hasil.rujukan[0].labelStatus, 'Terverifikasi');
+    assert.equal(hasil.rujukan[0].terverifikasi, true);
+    assert.equal(hasil.jawaban, 'Putusan didukung Pasal 36.');
+  });
+});
+
+describe('tolak ubah audit', () => {
+  it('WB-TA-01 UPDATE audit ditolak', () => {
+    const hasil = tolakUbahAudit('UPDATE');
+    assert.equal(hasil.ditolak, true);
+    assert.match(hasil.pesan, /append-only/);
+    assert.equal(hasil.catatPercobaan, true);
+  });
+
+  it('WB-TA-02 DELETE audit ditolak', () => {
+    const hasil = tolakUbahAudit('DELETE');
+    assert.equal(hasil.ditolak, true);
+    assert.equal(hasil.catatPercobaan, true);
+  });
+
+  it('WB-TA-03 INSERT audit diteruskan', () => {
+    assert.equal(tolakUbahAudit('INSERT'), null);
   });
 });
